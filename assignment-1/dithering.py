@@ -52,21 +52,6 @@ DIFFUSION_MAP = {
 
 ###############################################################################
 
-def show(img, img_title=""):
-    plt.axis('off')
-    plt.title(img_title)
-    plt.imshow(img, vmin=0, vmax=255, cmap="gray" if img.ndim == 2 else None)
-    plt.show()
-
-def save(img, save_fname, save_path=OUTPUT_FOLDER):
-    cv2.imwrite(join(save_path, save_fname + ".png"), img)
-
-def grayscale(img):
-    assert(img.ndim == 3)
-    return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-clamp = lambda v, min_v=0, max_v=255: min_v if v < min_v else max_v if v > max_v else v
-
 def dither_gray(img, technique, threshold=128):
     ''' Applies a dithering technique to the given grayscale image, returning a new halftone (black and white) image.'''
     assert(technique in Technique.list_all), f"The dithering technique must be one of: {Technique.list_all}"

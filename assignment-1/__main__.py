@@ -26,13 +26,20 @@ def get_parser():
                         help='Increase verbosity')
     return parser
 
+v_print = None
 def main(args=None):
     parser = get_parser()
     args = parser.parse_args(args)
+
     if args.verbose:
-        print(f"Input image: {os.path.join(args.input_folder, args.image)}")
-        print(f"Output folder: {os.path.join(args.output_folder, '')}")
         print(f"Technique: {Technique.list_all[args.technique_index] if args.technique_index else 'all'}")
+        def __v_print(*args):
+            print(args)
+    else:
+        __v_print = lambda *a: None
+    
+    global v_print
+    v_print = __v_print
 
 if __name__ == '__main__':
     main()
