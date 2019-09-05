@@ -49,44 +49,26 @@ DIFFUSION_MAP = {
 ###############################################################################
 
 def threshold(img, threshold=128):
-    ''' Returns a new halftone image based on the given threshold. '''
+    ''' Returns a new halftone image based on the given threshold '''
     __img = img.copy()
     __img = np.where(__img < 128, 0, 255)
     return __img
 
-def dither_gray(img, technique, threshold=128):
-    ''' Applies a dithering technique to the given grayscale image, returning a new halftone (black and white) image. '''
+def dither(img, technique, threshold=128):
+    ''' Applies a dithering technique to the given (grayscale or BGR) image, returning a halftone copy of it '''
     assert(technique in Technique.list_all), f"The dithering technique must be one of: {Technique.list_all}"
-    assert(img.ndim == 2)
-    dithered_img = img.copy()
-    height, width = dithered_img.shape
-    for x in range(width):
-        for y in range(height):
-            new_color = 0 if dithered_img[y, x] < threshold else 255
-            quant_error = dithered_img[y, x] - new_color
-            dithered_img[y, x] = new_color
+    __img = img.copy()
+    height, width, *_ = __img.shape
+    for y in range(height):
+        for x in range(width):
+            new_color = np.where(__img[y, x] < threshold, 0, 255)
+            quantization_error = __img[y, x] - new_color
+            __img[y, x] = new_color
             # error diffusion
             for dx, dy, weight in DIFFUSION_MAP[technique]:
-                if 0 <= y+dy < height and 0 <= x+dx < width:
-                    dithered_img[y+dy, x+dx] = clamp(dithered_img[y+dy, x+dx] + weight * quant_error)    
-    return dithered_img
-
-def dither_rgb(img, technique, threshold=128):
-    ''' Applies a dithering technique to the given colored image, returning a new halftone (RGB) image. '''
-    assert(technique in Technique.list_all), f"The dithering technique must be one of: {Technique.list_all}"
-    assert(img.ndim == 3)
-    dithered_img = img.copy()
-    height, width, _ = dithered_img.shape
-    for x in range(width):
-        for y in range(height):
-            new_color = np.where(dithered_img[y, x] < threshold, 0, 255)
-            quant_error = dithered_img[y, x] - new_color
-            dithered_img[y, x] = new_color
-            # error diffusion
-            for dx, dy, weight in DIFFUSION_MAP[technique]:
-                if 0 <= y+dy < height and 0 <= x+dx < width:
-                    dithered_img[y+dy, x+dx] = clamp(dithered_img[y+dy, x+dx] + weight * quant_error)
-    return dithered_img
+                if (0 <= y + dy < height) and (0 <= x + dx < width):
+                    __img[y + dy, x + dx] = clamp(__img[y + dy, x + dx] + weight * quantization_error)
+    return __img
 
 ###############################################################################
 

@@ -3,20 +3,14 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-INPUT_FOLDER = "i"
+INPUT_FOLDER  = "i"
 OUTPUT_FOLDER = "o"
 
-RGB_BLACK = np.array([ 0 ,  0 ,  0 ])
-RGB_WHITE = np.array([255, 255, 255])
-RGB_RED   = np.array([255,  0 ,  0 ])
-RGB_GREEN = np.array([ 0 , 255,  0 ])
-RGB_BLUE  = np.array([ 0 ,  0 , 255])
-
-BGR_BLACK = np.array([ 0 ,  0 ,  0 ])
-BGR_WHITE = np.array([255, 255, 255])
-BGR_RED   = np.array([ 0 ,  0 , 255])
-BGR_GREEN = np.array([ 0 , 255,  0 ])
-BGR_BLUE  = np.array([255,  0 ,  0 ])
+RGB_BLACK = BGR_BLACK = np.array([ 0 ,  0 ,  0 ])
+RGB_WHITE = BGR_WHITE = np.array([255, 255, 255])
+RGB_RED   = BGR_BLUE  = np.array([255,  0 ,  0 ])
+RGB_GREEN = BGR_GREEN = np.array([ 0 , 255,  0 ])
+RGB_BLUE  = BGR_RED   = np.array([ 0 ,  0 , 255])
 
 ###############################################################################
 
@@ -25,9 +19,9 @@ def is_gray(img):
     return img.ndim == 2
 
 def grayscale(img):
-    ''' Returns the grayscale array representation of the RGB image img '''
+    ''' Returns the grayscale array representation of the BGR image img '''
     assert(not is_gray(img))
-    return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 def normalize(img, min_v, max_v):
     ''' Returns a normalized array representation of img with min=min_v and max=max_v '''
@@ -37,7 +31,7 @@ def normalize(img, min_v, max_v):
 
 def clamp(v, min_v=0, max_v=255):
     ''' Constrains v to lie between min_v and max_v\n
-        If v is a ndarray, returns a copy of it with all values between min_v and max_v '''
+        If v is an array, returns a copy of it with all values between min_v and max_v '''
     if (np.isscalar(v)):
         return min_v if (v < min_v) else max_v if (v > max_v) else v
     else:

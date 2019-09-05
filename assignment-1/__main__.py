@@ -36,6 +36,14 @@ def parse_args():
 
 ###############################################################################
 
+def apply_and_save(img, transformation, save_fname):
+    ''' Applies transformation to a copy of img and saves it '''
+    transformed_img = transformation(img)
+    save(transformed_img, save_fname)
+    v_print(f"Saved '{save_fname}'")
+
+###############################################################################
+
 if __name__ == '__main__':
     parse_args()
 
@@ -64,37 +72,22 @@ if __name__ == '__main__':
     v_print("")
 
     # threshold
+    v_print("Thresholding...")
     for img_title, img in images.items():
-        __img = threshold(img)
-        save_fname = f"{img_title} (threshold)"
-        save(__img, save_fname)
-        v_print(f"Saved '{save_fname}'")
-
+        apply_and_save(img, transformation=threshold, 
+                       save_fname=f"{img_title} (threshold)")
         gray_img = gray_images[img_title]
-        __gray_img = threshold(gray_img)
-        save_fname = f"{img_title}_grayscale (threshold)"
-        save(__gray_img, save_fname)
-        v_print(f"Saved '{save_fname}'")
+        apply_and_save(gray_img, transformation=threshold, 
+                       save_fname=f"gray {img_title} (threshold)")
     v_print("")
 
     # dithering
-    # for technique in techniques:
-    #     if args.verbose: print(f"\nTechnique: {technique}")
-    #     for img_title, img in images.items():
-    #         if args.verbose: print(f"  Dithering '{img_title}.png'...")
-
-    #         # grayscale
-    #         dithered_img = dither_gray(grayscale(img), technique) # TODO save the grayscaled image
-    #         save_fname = f"[ordered] {img_title}_grayscale ({technique})"
-    #         save(dithered_img, save_fname)
-    #         if args.verbose: print(f"  ..saved grayscale image to: '{join(OUTPUT_FOLDER, save_fname)}.png'")
-
-    #         # colored (RGB)
-    #         dithered_img = dither_rgb(img, technique)
-    #         save_fname = f"[ordered] {img_title} ({technique})"
-    #         save(dithered_img, save_fname)
-    #         if args.verbose: print(f"  ..saved colored image to: '{join(OUTPUT_FOLDER, save_fname)}.png'")
-
-# TODO thresholding
-# TODO alternating order
-# TODO colored dithering
+    v_print("Dithering...")
+    for technique in techniques:
+        for img_title, img in images.items():
+            apply_and_save(img, transformation=lambda i: dither(i, technique), 
+                           save_fname=f"{img_title} (ordered {technique})")
+            gray_img = gray_images[img_title]
+            apply_and_save(gray_img, transformation=lambda i: dither(i, technique), 
+                           save_fname=f"gray {img_title} (ordered {technique})")
+            # TODO zigzag dither
