@@ -62,11 +62,18 @@ def normalize(img, min_v, max_v):
     return norm_img
 
 def clamp(v, min_v=0, max_v=255):
-    ''' Constrains v to lie between min_v and max_v '''
-    return min_v if (v < min_v) else max_v if (v > max_v) else v
+    ''' Constrains v to lie between min_v and max_v\n
+        If v is a ndarray, returns a copy of it with all values between min_v and max_v '''
+    if (np.isscalar(v)):
+        return min_v if (v < min_v) else max_v if (v > max_v) else v
+    else:
+        __v = v.copy()
+        __v[__v < min_v] = min_v
+        __v[__v > max_v] = max_v
+        return __v
 
 ###############################################################################
 
 if __name__ == "__main__":
-    print(f"cv2 version: {cv2.__version__}")
+    print(f"cv2 version: {cv2.__version__}")  # https://docs.opencv.org/4.1.0/
     print(f"numpy version: {np.__version__}")
