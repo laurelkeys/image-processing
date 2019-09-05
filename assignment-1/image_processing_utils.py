@@ -30,8 +30,12 @@ def save(img, fname, folder=OUTPUT_FOLDER):
     ''' Saves img to os.path.join(folder, fname) '''
     cv2.imwrite(os.path.join(folder, fname), img)
 
-def images_in_folder(folder=INPUT_FOLDER, ext=".png"):
-    ''' Iterator for the images in path with ext extension '''
+def split_name_ext(fname):
+    ''' Returns a tuple (name, ext) such that name + ext == os.path.basename(fname)'''
+    return os.path.splitext(os.path.basename(fname))
+
+def image_fnames(folder=INPUT_FOLDER, ext=".png"):
+    ''' Iterator for the files in folder with ext extension '''
     for fname in os.listdir(folder):
         if fname.endswith(ext):
             yield fname

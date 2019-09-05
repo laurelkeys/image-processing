@@ -48,8 +48,14 @@ DIFFUSION_MAP = {
 
 ###############################################################################
 
+def threshold(img, threshold=128):
+    ''' Returns a new halftone image based on the given threshold. '''
+    __img = img.copy()
+    __img = np.where(__img < 128, 0, 255)
+    return __img
+
 def dither_gray(img, technique, threshold=128):
-    ''' Applies a dithering technique to the given grayscale image, returning a new halftone (black and white) image.'''
+    ''' Applies a dithering technique to the given grayscale image, returning a new halftone (black and white) image. '''
     assert(technique in Technique.list_all), f"The dithering technique must be one of: {Technique.list_all}"
     assert(img.ndim == 2)
     dithered_img = img.copy()
@@ -66,7 +72,7 @@ def dither_gray(img, technique, threshold=128):
     return dithered_img
 
 def dither_rgb(img, technique, threshold=128):
-    ''' Applies a dithering technique to the given colored image, returning a new halftone (RGB) image.'''
+    ''' Applies a dithering technique to the given colored image, returning a new halftone (RGB) image. '''
     assert(technique in Technique.list_all), f"The dithering technique must be one of: {Technique.list_all}"
     assert(img.ndim == 3)
     dithered_img = img.copy()
@@ -85,7 +91,7 @@ def dither_rgb(img, technique, threshold=128):
 ###############################################################################
 
 if __name__ == "__main__":
-    # check that the sum of weights of all techniques are equal to 1
+    # check that the sum of weights is equal to 1 for all dithering techniques
     print(f"Diffusion map weight sum:")
     for technique in Technique.list_all:
         weight_sum = 0
