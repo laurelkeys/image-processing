@@ -8,45 +8,15 @@ OUTPUT_FOLDER = "o"
 
 RGB_BLACK = np.array([ 0 ,  0 ,  0 ])
 RGB_WHITE = np.array([255, 255, 255])
-RGB_RED   = np.array([ 0 ,  0 , 255])
+RGB_RED   = np.array([255,  0 ,  0 ])
 RGB_GREEN = np.array([ 0 , 255,  0 ])
-RGB_BLUE  = np.array([255,  0 ,  0 ])
+RGB_BLUE  = np.array([ 0 ,  0 , 255])
 
-###############################################################################
-
-def show(img, img_title=""):
-    ''' Shows img without changing its pixel values for display '''
-    plt.axis('off')
-    plt.title(img_title)
-    plt.imshow(img, vmin=0, vmax=255, cmap="gray" if img.ndim == 2 else None)
-    plt.show()
-
-def load(fname, folder=INPUT_FOLDER):
-    ''' Returns the RGB array representation of the image stored in os.path.join(folder, fname) '''
-    bgr_img = cv2.imread(os.path.join(folder, fname), cv2.IMREAD_COLOR)
-    return cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
-
-def save(img, fname, folder=OUTPUT_FOLDER):
-    ''' Saves img to os.path.join(folder, fname) '''
-    cv2.imwrite(os.path.join(folder, fname), img)
-
-def split_name_ext(fname):
-    ''' Returns a tuple (name, ext) such that name + ext == os.path.basename(fname)'''
-    return os.path.splitext(os.path.basename(fname))
-
-def image_fnames(folder=INPUT_FOLDER, ext=".png"):
-    ''' Iterator for the files in folder with ext extension '''
-    for fname in os.listdir(folder):
-        if fname.endswith(ext):
-            yield fname
-
-def create_folder(path):
-    ''' Creates the directories specified in path if they don't already exist '''
-    fname = os.path.basename(path)
-    if fname.__contains__('.'):
-        path = os.path.dirname(path) # if path contains a file name we remove it
-    if not os.path.exists(path):
-        os.makedirs(path)
+BGR_BLACK = np.array([ 0 ,  0 ,  0 ])
+BGR_WHITE = np.array([255, 255, 255])
+BGR_RED   = np.array([ 0 ,  0 , 255])
+BGR_GREEN = np.array([ 0 , 255,  0 ])
+BGR_BLUE  = np.array([255,  0 ,  0 ])
 
 ###############################################################################
 
@@ -75,6 +45,45 @@ def clamp(v, min_v=0, max_v=255):
         __v[__v < min_v] = min_v
         __v[__v > max_v] = max_v
         return __v
+
+###############################################################################
+
+def show(img, img_title=""):
+    ''' Shows img without changing its pixel values for display '''
+    plt.axis('off')
+    plt.title(img_title)
+    plt.imshow(img, vmin=0, vmax=255, cmap="gray" if img.ndim == 2 else None)
+    plt.show()
+
+def load(fname, folder=INPUT_FOLDER):
+    ''' Returns the BGR array representation of the image stored in os.path.join(folder, fname) '''
+    bgr_img = cv2.imread(os.path.join(folder, fname), cv2.IMREAD_COLOR)
+    return bgr_img
+
+def save(img, fname, folder=OUTPUT_FOLDER, ext=".png"):
+    ''' Saves img to os.path.join(folder, fname)\n
+        Uses ext as the file extension if not specified in fname '''
+    if not fname.__contains__('.'):
+        fname += ext
+    cv2.imwrite(os.path.join(folder, fname), img)
+
+def split_name_ext(fname):
+    ''' Returns a tuple (name, ext) such that name + ext == os.path.basename(fname)'''
+    return os.path.splitext(os.path.basename(fname))
+
+def image_fnames(folder=INPUT_FOLDER, ext=".png"):
+    ''' Iterator for the files in folder with ext extension '''
+    for fname in os.listdir(folder):
+        if fname.endswith(ext):
+            yield fname
+
+def create_folder(path):
+    ''' Creates the directories specified in path if they don't already exist '''
+    fname = os.path.basename(path)
+    if fname.__contains__('.'):
+        path = os.path.dirname(path) # if path contains a file name we remove it
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 ###############################################################################
 

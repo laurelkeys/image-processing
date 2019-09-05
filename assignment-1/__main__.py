@@ -1,6 +1,6 @@
 import os.path
 import argparse
-from dithering import Technique
+from dithering import *
 from image_processing_utils import *
 
 def get_parser():
@@ -43,19 +43,58 @@ if __name__ == '__main__':
     v_print(f"Output folder: {os.path.join(args.output_folder, '')}")
 
     techniques = Technique.list_all if args.technique_index == None else [Technique.list_all[args.technique_index]]
-    v_print(f"Techniques: {techniques}")
+    v_print(f"Techniques: {techniques}\n")
 
     if args.image == None:
-        img_fnames = image_fnames(args.input_folder)
+        img_fnames = [ifn for ifn in image_fnames(args.input_folder)]
     else:
         if not args.image.endswith(".png"):
             args.image += ".png"
-        img_fnames = [os.path.join(args.input_folder, args.image)]
+        img_fnames = [args.image]
 
     # load input image(s)
     images = {}
     gray_images = {}
+    v_print("Loading images...")
     for img_fname in img_fnames:
         img_title, _ = split_name_ext(img_fname)
         images[img_title] = load(img_fname, args.input_folder)
         gray_images[img_title] = grayscale(images[img_title])
+        v_print(f"'{img_fname}' loaded")
+    v_print("")
+
+    # threshold
+    for img_title, img in images.items():
+        __img = threshold(img)
+        save_fname = f"{img_title} (threshold)"
+        save(__img, save_fname)
+        v_print(f"Saved '{save_fname}'")
+
+        gray_img = gray_images[img_title]
+        __gray_img = threshold(gray_img)
+        save_fname = f"{img_title}_grayscale (threshold)"
+        save(__gray_img, save_fname)
+        v_print(f"Saved '{save_fname}'")
+    v_print("")
+
+    # dithering
+    # for technique in techniques:
+    #     if args.verbose: print(f"\nTechnique: {technique}")
+    #     for img_title, img in images.items():
+    #         if args.verbose: print(f"  Dithering '{img_title}.png'...")
+
+    #         # grayscale
+    #         dithered_img = dither_gray(grayscale(img), technique) # TODO save the grayscaled image
+    #         save_fname = f"[ordered] {img_title}_grayscale ({technique})"
+    #         save(dithered_img, save_fname)
+    #         if args.verbose: print(f"  ..saved grayscale image to: '{join(OUTPUT_FOLDER, save_fname)}.png'")
+
+    #         # colored (RGB)
+    #         dithered_img = dither_rgb(img, technique)
+    #         save_fname = f"[ordered] {img_title} ({technique})"
+    #         save(dithered_img, save_fname)
+    #         if args.verbose: print(f"  ..saved colored image to: '{join(OUTPUT_FOLDER, save_fname)}.png'")
+
+# TODO thresholding
+# TODO alternating order
+# TODO colored dithering
