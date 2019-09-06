@@ -1,4 +1,6 @@
 import os
+import warnings
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -44,9 +46,14 @@ def clamp(v, min_v=0, max_v=255):
 
 def show(img, img_title=""):
     ''' Shows img without changing its pixel values for display '''
+    # FIXME
     plt.axis('off')
     plt.title(img_title)
-    plt.imshow(img, vmin=0, vmax=255, cmap="gray" if img.ndim == 2 else None)
+    if is_gray(img):
+        plt.imshow(img, vmin=0, vmax=255, cmap="gray")
+    else:
+        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        plt.imshow(rgb_img, vmin=0, vmax=255)
     plt.show()
 
 def load(fname, folder=INPUT_FOLDER):
