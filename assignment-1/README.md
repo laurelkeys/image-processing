@@ -1,3 +1,4 @@
+> pip3 install numpy matplotlib opencv-python
 ```
 usage: main.py [-h] [--plain] [--image IMAGE] [--input_folder INPUT_FOLDER]
                [--output_folder OUTPUT_FOLDER]
