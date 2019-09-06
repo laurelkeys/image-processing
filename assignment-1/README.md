@@ -1,7 +1,10 @@
 > pip3 install numpy matplotlib opencv-python
 ```
-usage: main.py [-h] [--plain] [--image IMAGE] [--input_folder INPUT_FOLDER]
+usage: main.py [-h] [--plain]
+               [--image IMAGE]
+               [--input_folder INPUT_FOLDER]
                [--output_folder OUTPUT_FOLDER]
+               [--no_gray]
                [--technique_index {0,1,2,3,4,5}]
 
 Error diffusion dithering techniques for creating halftone images.
@@ -16,6 +19,8 @@ optional arguments:
                         Input image(s) folder path (defaults to i\)
   --output_folder OUTPUT_FOLDER, -o OUTPUT_FOLDER
                         Output image(s) folder path (defaults to o\)
+  --no_gray, -ng        Do not generate the grayscale version of the input
+                        image(s)
   --technique_index {0,1,2,3,4,5}, -t {0,1,2,3,4,5}
                         Index of the dithering technique to be used, where:
                         0=floyd_steinberg, 1=stevenson_arce, 2=burkes,

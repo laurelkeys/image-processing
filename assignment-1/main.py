@@ -14,6 +14,8 @@ def get_parser():
                         help="Input image(s) folder path" + f" (defaults to {os.path.join(INPUT_FOLDER, '')})")
     parser.add_argument("--output_folder", "-o", type=str, default=OUTPUT_FOLDER, 
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
+    parser.add_argument("--no_gray", "-ng", action="store_true", 
+                        help="Do not generate the grayscale version of the input image(s)")
     parser.add_argument("--technique_index", "-t", type=int, choices=range(0, len(Technique.list_all)), 
                         help="Index of the dithering technique to be used, where: " + 
                              ', '.join([f"{i}={x}" for i, x in enumerate(Technique.list_all)]))
@@ -82,9 +84,10 @@ def do_threshold(images, gray_images):
         v_print(f"({count}/{max_count})")
         apply_and_save(img, transformation=threshold, 
                        save_fname=f"{img_title}_threshold")
-        gray_img = gray_images[img_title]
-        apply_and_save(gray_img, transformation=threshold, 
-                       save_fname=f"gray_{img_title}_threshold")
+        if not args.no_gray:
+            gray_img = gray_images[img_title]
+            apply_and_save(gray_img, transformation=threshold, 
+                           save_fname=f"gray_{img_title}_threshold")
         count += 1
     v_print("")
 
@@ -97,9 +100,10 @@ def do_dither(images, gray_images, techniques):
         for img_title, img in images.items():
             apply_and_save(img, transformation=lambda i: dither(i, technique), 
                            save_fname=f"{img_title}_{technique}")
-            gray_img = gray_images[img_title]
-            apply_and_save(gray_img, transformation=lambda i: dither(i, technique), 
-                           save_fname=f"gray_{img_title}_{technique}")
+            if not args.no_gray:
+                gray_img = gray_images[img_title]
+                apply_and_save(gray_img, transformation=lambda i: dither(i, technique), 
+                               save_fname=f"gray_{img_title}_{technique}")
         count += 1
     v_print("")
 
@@ -112,9 +116,10 @@ def do_serpentine_dither(images, gray_images, techniques):
         for img_title, img in images.items():
             apply_and_save(img, transformation=lambda i: serpentine_dither(i, technique), 
                            save_fname=f"{img_title}_{technique}_serpentine")
-            gray_img = gray_images[img_title]
-            apply_and_save(gray_img, transformation=lambda i: serpentine_dither(i, technique), 
-                           save_fname=f"gray_{img_title}_{technique}_serpentine")
+            if not args.no_gray:
+                gray_img = gray_images[img_title]
+                apply_and_save(gray_img, transformation=lambda i: serpentine_dither(i, technique), 
+                               save_fname=f"gray_{img_title}_{technique}_serpentine")
         count += 1
     v_print("")
 
@@ -124,7 +129,8 @@ if __name__ == '__main__':
 
     parse_args()
     if args.image == None:
-        run_all = prompt_yes_no(f"Do you want to dither all images inside '{args.input_folder}'?", default=True)
+        run_all = prompt_yes_no(default=True, 
+                                question=f"Do you want to dither all images inside '{os.path.join(args.input_folder, '')}'?")
         if not run_all:
             sys.exit(f"\nExitting... please use the -img argument to dither only a specific image (or -h for help)")
 
