@@ -46,9 +46,9 @@ def clamp(v, min_v=0, max_v=255):
 
 def show(img, img_title=""):
     ''' Shows img without changing its pixel values for display '''
-    # FIXME
-    plt.axis('off')
+    plt.axis("off")
     plt.title(img_title)
+    # FIXME
     if is_gray(img):
         plt.imshow(img, vmin=0, vmax=255, cmap="gray")
     else:
