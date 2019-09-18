@@ -8,22 +8,13 @@ import matplotlib.pyplot as plt
 INPUT_FOLDER  = "i"
 OUTPUT_FOLDER = "o"
 
-RGB_BLACK = BGR_BLACK = np.array([ 0 ,  0 ,  0 ])
-RGB_WHITE = BGR_WHITE = np.array([255, 255, 255])
-RGB_RED   = BGR_BLUE  = np.array([255,  0 ,  0 ])
-RGB_GREEN = BGR_GREEN = np.array([ 0 , 255,  0 ])
-RGB_BLUE  = BGR_RED   = np.array([ 0 ,  0 , 255])
+DEFAULT_EXT = ".pgm"
 
 ###############################################################################
 
 def is_gray(img):
     ''' Verifies if img is a 2D array '''
     return img.ndim == 2
-
-def grayscale(img):
-    ''' Returns the grayscale array representation of the BGR image img '''
-    assert(not is_gray(img))
-    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 def normalize(img, min_v, max_v):
     ''' Returns a normalized array representation of img with min=min_v and max=max_v '''
@@ -56,12 +47,12 @@ def show(img, img_title=""):
         plt.imshow(rgb_img, vmin=0, vmax=255)
     plt.show()
 
-def load(fname, folder=INPUT_FOLDER):
-    ''' Returns the BGR array representation of the image stored in os.path.join(folder, fname) '''
-    bgr_img = cv2.imread(os.path.join(folder, fname), cv2.IMREAD_COLOR)
-    return bgr_img
+def load_gray(fname, folder=INPUT_FOLDER):
+    ''' Returns the grayscale array representation of the image stored in os.path.join(folder, fname) '''
+    gray_img = cv2.imread(os.path.join(folder, fname), cv2.IMREAD_GRAYSCALE)
+    return gray_img
 
-def save(img, fname, folder=OUTPUT_FOLDER, ext=".png"):
+def save(img, fname, folder=OUTPUT_FOLDER, ext=DEFAULT_EXT):
     ''' Saves img to os.path.join(folder, fname)\n
         Uses ext as the file extension if not specified in fname '''
     if not fname.__contains__('.'):
@@ -72,7 +63,7 @@ def split_name_ext(fname):
     ''' Returns a tuple (name, ext) such that name + ext == os.path.basename(fname)'''
     return os.path.splitext(os.path.basename(fname))
 
-def image_fnames(folder=INPUT_FOLDER, ext=".png"):
+def image_fnames(folder=INPUT_FOLDER, ext=DEFAULT_EXT):
     ''' Iterator for the files in folder with ext extension '''
     for fname in os.listdir(folder):
         if fname.endswith(ext):

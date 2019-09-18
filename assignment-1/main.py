@@ -2,14 +2,14 @@ import sys
 import os.path
 import argparse
 from dithering import *
-from image_processing_utils import *
+from utils import *
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Error diffusion dithering techniques for creating halftone images.")
     parser.add_argument("--plain", action="store_true", 
                         help="Decrease verbosity")
     parser.add_argument("--image", "-img", type=str, 
-                        help="Image file name ('.png' extension is optional), which must be inside the input folder")
+                        help=f"Image file name ('{DEFAULT_EXT}' extension is optional), which must be inside the input folder")
     parser.add_argument("--input_folder", "-i", type=str, default=INPUT_FOLDER, 
                         help="Input image(s) folder path" + f" (defaults to {os.path.join(INPUT_FOLDER, '')})")
     parser.add_argument("--output_folder", "-o", type=str, default=OUTPUT_FOLDER, 
@@ -51,7 +51,7 @@ def prompt_yes_no(question, default=None):
 def check_paths_exist_or_die(image_fnames, folder):
     for image_fname in image_fnames:
         if not os.path.isfile(os.path.join(folder, image_fname)):
-            sys.exit(f"\nERROR: invalid image path '{os.path.join(folder, image_fname)}'")
+            sys.exit(f"\nERROR: invalid image path or extension '{os.path.join(folder, image_fname)}'")
 
 def ready_image_fnames():
     v_print(f"Input folder: {os.path.join(args.input_folder, '')}")
@@ -61,8 +61,8 @@ def ready_image_fnames():
     if args.image == None:
         img_fnames = [ifn for ifn in image_fnames(folder=args.input_folder)]
     else:
-        if not args.image.endswith(".png"):
-            args.image += ".png"
+        if not args.image.endswith(DEFAULT_EXT):
+            args.image += DEFAULT_EXT
         img_fnames = [args.image]
     
     check_paths_exist_or_die(img_fnames, folder=args.input_folder)

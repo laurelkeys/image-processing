@@ -1,5 +1,5 @@
 import numpy as np
-from image_processing_utils import clamp
+from utils import clamp
 
 ''' Supported error diffusion techniques '''
 class Technique:
