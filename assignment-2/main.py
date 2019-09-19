@@ -17,7 +17,7 @@ def get_parser():
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
     parser.add_argument("--threshold_value", "-t", type=int, default=128, choices=range(0, 256), metavar="[0..255]", 
                         help="Threshold value")
-    parser.add_argument("--window_size", "-s", type=int, choices=[1,3,5,7], 
+    parser.add_argument("--window_size", "-s", type=int, default=3, choices=[1,3,5,7], 
                         help="Pixel neighborhood window size (for the methods to which it applies)")
     parser.add_argument("--method_index", "-m", type=int, choices=range(0, len(Method.list_all)), 
                         help="Index of the thresholding method to be used, where: " + 
@@ -79,16 +79,23 @@ def apply_and_save(img, transformation, save_fname):
     save(transformed_img, save_fname, folder=args.output_folder)
     v_print(f"Saved '{save_fname}'")
 
-def do_global_threshold(images, threshold):
+def do_global_threshold(images):
     v_print("Applying global threshold...")
-    count = 1
-    max_count = len(images.items())
     for img_title, img in images.items():
+        apply_and_save(img, transformation=partial(global_threshold, threshold=args.threshold_value), 
+                       save_fname=f"{img_title}_global_{args.threshold_value}")
+    v_print("")
+
+def do_local_threshold(images, methods):
+    v_print("Applying local threshold...")
+    count = 1
+    max_count = len(methods)
+    for method in methods:
         v_print(f"({count}/{max_count})")
-        # TODO use functools.partial
-        apply_and_save(img, transformation=partial(global_threshold, threshold=threshold), 
-                       save_fname=f"{img_title}_global_{threshold}")
-        count += 1
+        for img_title, img in images.items():
+            apply_and_save(img, transformation=partial(local_threshold, method=method, window_size=args.window_size), 
+                           save_fname=f"{img_title}_{method}_{args.window_size}x{args.window_size}")
+            count += 1
     v_print("")
 
 ###############################################################################
@@ -118,4 +125,9 @@ if __name__ == '__main__':
     v_print("")
 
     # global threhsolding
-    do_global_threshold(images, args.threshold_value)
+    do_global_threshold(images)
+
+    # local threhsolding
+    do_local_threshold(images, methods)
+
+    
