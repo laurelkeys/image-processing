@@ -28,8 +28,7 @@ def local_threshold(img, method, window_size=3):
 ###############################################################################
 
 def __contrast(pixel, kernel):
-    # return BLACK if np.abs(pixel - np.max(kernel)) < np.abs(pixel - np.min(kernel)) else WHITE
-    return BLACK if abs(pixel - max(kernel)) < abs(pixel - min(kernel)) else WHITE
+    return BLACK if np.abs(pixel - np.max(kernel)) < np.abs(pixel - np.min(kernel)) else WHITE
 
 def __mean(pixel, kernel):
     return BLACK if pixel < np.mean(kernel) else WHITE
@@ -40,25 +39,34 @@ def __median(pixel, kernel):
 ###############################################################################
 
 ''' Implemented thresholding methods '''
-class Method:
-    GLOBAL = "global"
-    BERNSEN = "bernsen"
-    NIBLACK = "niblack"
-    SAUVOLA_PIETAKSINEN = "sauvola_pietaksinen"
-    PHANSALSKAR_MORE_SABALE = "phansalskar_more_sabale"
-    CONTRAST = "contrast"
-    MEAN = "mean"
-    MEDIAN = "median"
-    # list_all = [GLOBAL, BERNSEN, NIBLACK, SAUVOLA_PIETAKSINEN, PHANSALSKAR_MORE_SABALE, CONTRAST, MEAN, MEDIAN]
-    list_all = [CONTRAST, MEAN, MEDIAN]
-    @property
-    def function(self):
-        return { 
-            self.CONTRAST: __contrast, 
-            self.MEAN: __mean, 
-            self.MEDIAN: __median
-        } # TODO map method constants to their implementation once they're done
+GLOBAL = "global"
+BERNSEN = "bernsen"
+NIBLACK = "niblack"
+SAUVOLA_PIETAKSINEN = "sauvola_pietaksinen"
+PHANSALSKAR_MORE_SABALE = "phansalskar_more_sabale"
+CONTRAST = "contrast"
+MEAN = "mean"
+MEDIAN = "median"
+
+METHOD_LIST = [CONTRAST, MEAN, MEDIAN]
+
+function = { 
+    CONTRAST: __contrast, 
+    MEAN: __mean, 
+    MEDIAN: __median
+}
 
 if __name__ == "__main__":
-    function[Method.MEAN](1, [1,1,1])
+    M = np.array([[1,2,4],
+                  [4,2,1],
+                  [5,6,5]])
+    M_min = np.min(M)
+    M_max = np.max(M)
+    M_mean = np.mean(M)
+    M_median = np.median(M)
+    print(M_min, M_max, M_mean, M_median)
+    for px in [1,2,4,5,6]:
+        print(px)
+        for method, method_func in function.items():
+            print(f"{method}: {method_func(px, M)}")
     pass
