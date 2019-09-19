@@ -49,7 +49,7 @@ DIFFUSION_MAP = {
 def threshold(img, threshold=128):
     ''' Returns a new halftone image based on the given threshold '''
     __img = img.copy()
-    __img = np.where(__img < 128, 0, 255)
+    __img = np.where(__img < threshold, 0, 255)
     return __img
 
 def dither(img, technique, threshold=128):

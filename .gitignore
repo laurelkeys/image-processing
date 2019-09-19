@@ -1,3 +1,6 @@
+# Assignment 2
+assignment-2/o/*.pgm
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

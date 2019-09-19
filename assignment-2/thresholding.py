@@ -15,10 +15,16 @@ class Method:
 
 ###############################################################################
 
-def threshold(img, threshold=128):
-    ''' Returns a new halftone image based on the given threshold '''
+def global_threshold(img, threshold=128):
+    ''' Returns a new binary image based on the given threshold '''
     __img = img.copy()
-    __img = np.where(__img < 128, 0, 255)
+    __img = np.where(__img < threshold, 0, 255)
+    return __img
+
+def local_threshold(img, method, window_size=3, threshold=128):
+    ''' Returns a new binary image by applying the given method '''
+    __img = img.copy()
+    __img = np.where(__img < threshold, 0, 255)
     return __img
 
 ###############################################################################

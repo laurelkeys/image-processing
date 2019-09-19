@@ -1,6 +1,7 @@
 import sys
 import os.path
 import argparse
+from functools import partial
 from thresholding import *
 from utils import *
 
@@ -14,10 +15,10 @@ def get_parser():
                         help="Input image(s) folder path" + f" (defaults to {os.path.join(INPUT_FOLDER, '')})")
     parser.add_argument("--output_folder", "-o", type=str, default=OUTPUT_FOLDER, 
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
-    parser.add_argument("--threshold", "-t", type=int, choices=range(0, 256), metavar="[0..255]", 
+    parser.add_argument("--threshold_value", "-t", type=int, default=128, choices=range(0, 256), metavar="[0..255]", 
                         help="Threshold value")
-    parser.add_argument("--neighborhood_size", "-s", type=int, choices=[1,3,5,7], 
-                        help="Pixel neighborhood size (for the methods to which it applies)")
+    parser.add_argument("--window_size", "-s", type=int, choices=[1,3,5,7], 
+                        help="Pixel neighborhood window size (for the methods to which it applies)")
     parser.add_argument("--method_index", "-m", type=int, choices=range(0, len(Method.list_all)), 
                         help="Index of the thresholding method to be used, where: " + 
                              ', '.join([f"{i}={x}" for i, x in enumerate(Method.list_all)]))
@@ -72,6 +73,26 @@ def ready_image_fnames():
 
 ###############################################################################
 
+def apply_and_save(img, transformation, save_fname):
+    ''' Applies transformation to a copy of img and saves it '''
+    transformed_img = transformation(img)
+    save(transformed_img, save_fname, folder=args.output_folder)
+    v_print(f"Saved '{save_fname}'")
+
+def do_global_threshold(images, threshold):
+    v_print("Applying global threshold...")
+    count = 1
+    max_count = len(images.items())
+    for img_title, img in images.items():
+        v_print(f"({count}/{max_count})")
+        # TODO use functools.partial
+        apply_and_save(img, transformation=partial(global_threshold, threshold=threshold), 
+                       save_fname=f"{img_title}_global_{threshold}")
+        count += 1
+    v_print("")
+
+###############################################################################
+
 if __name__ == '__main__':
 
     parse_args()
@@ -96,6 +117,5 @@ if __name__ == '__main__':
         v_print(f"'{img_fname}' loaded")
     v_print("")
 
-    # TODO
-    for im_title, im in images.items():
-        show(im, im_title)
+    # global threhsolding
+    do_global_threshold(images, args.threshold_value)
