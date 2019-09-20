@@ -3,6 +3,18 @@ import numpy as np
 WHITE = 0
 BLACK = 255
 
+''' Implemented thresholding methods '''
+class Method:
+    GLOBAL = "global"
+    BERNSEN = "bernsen"
+    NIBLACK = "niblack"
+    SAUVOLA_PIETAKSINEN = "sauvola_pietaksinen"
+    PHANSALSKAR_MORE_SABALE = "phansalskar_more_sabale"
+    CONTRAST = "contrast"
+    MEAN = "mean"
+    MEDIAN = "median"
+    list_all = [MEAN, MEDIAN]
+
 ###############################################################################
 
 def global_threshold(img, threshold=128):
@@ -20,7 +32,7 @@ def local_threshold(img, method, window_size=3):
     delta = (window_size - 1) // 2
     for y in range(delta, height-delta):
         for x in range(delta, width-delta):
-            __img[y, x] = method(img[y, x], img[y-delta:y+delta+1, x-delta:x+delta+1])
+            __img[y, x] = __apply[method](img[y, x], img[y-delta:y+delta+1, x-delta:x+delta+1])
 
     # TODO treat corners and borders
     return __img
@@ -36,37 +48,13 @@ def __mean(pixel, kernel):
 def __median(pixel, kernel):
     return BLACK if pixel < np.median(kernel) else WHITE
 
-###############################################################################
-
-''' Implemented thresholding methods '''
-GLOBAL = "global"
-BERNSEN = "bernsen"
-NIBLACK = "niblack"
-SAUVOLA_PIETAKSINEN = "sauvola_pietaksinen"
-PHANSALSKAR_MORE_SABALE = "phansalskar_more_sabale"
-CONTRAST = "contrast"
-MEAN = "mean"
-MEDIAN = "median"
-
-METHOD_LIST = [CONTRAST, MEAN, MEDIAN]
-
-function = { 
-    CONTRAST: __contrast, 
-    MEAN: __mean, 
-    MEDIAN: __median
+__apply = {
+    Method.CONTRAST: lambda px, k: __contrast(px, k), 
+    Method.MEAN: lambda px, k: __mean(px, k), 
+    Method.MEDIAN: lambda px, k: __median(px, k)
 }
 
+###############################################################################
+
 if __name__ == "__main__":
-    M = np.array([[1,2,4],
-                  [4,2,1],
-                  [5,6,5]])
-    M_min = np.min(M)
-    M_max = np.max(M)
-    M_mean = np.mean(M)
-    M_median = np.median(M)
-    print(M_min, M_max, M_mean, M_median)
-    for px in [1,2,4,5,6]:
-        print(px)
-        for method, method_func in function.items():
-            print(f"{method}: {method_func(px, M)}")
     pass

@@ -91,7 +91,7 @@ def do_local_threshold(images, methods):
     count = 1
     max_count = len(methods)
     for method in methods:
-        v_print(f"({count}/{max_count})")
+        v_print(f"({count}/{max_count}) {method}")
         for img_title, img in images.items():
             apply_and_save(img, transformation=partial(local_threshold, method=method, window_size=args.window_size), 
                            save_fname=f"{img_title}_{method}_{args.window_size}x{args.window_size}")
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     v_print("")
 
     # global threhsolding
-    do_global_threshold(images)
+    # do_global_threshold(images)
 
     # local threhsolding
     do_local_threshold(images, methods)
