@@ -22,6 +22,8 @@ def get_parser():
     parser.add_argument("--method_index", "-m", type=int, choices=range(0, len(Method.list_all)), 
                         help="Index of the thresholding method to be used, where: " + 
                              ', '.join([f"{i}={x}" for i, x in enumerate(Method.list_all)]))
+    parser.add_argument("--save_to_png", "-png", action="store_true", 
+                        help="Stores the output images as .png instead of .pgm")
     return parser
 
 args = None
@@ -76,7 +78,7 @@ def ready_image_fnames():
 def apply_and_save(img, transformation, save_fname):
     ''' Applies transformation to a copy of img and saves it '''
     transformed_img = transformation(img)
-    save(transformed_img, save_fname, folder=args.output_folder)
+    save(transformed_img, save_fname, folder=args.output_folder, ext=".png" if args.save_to_png else DEFAULT_EXT)
     v_print(f"Saved '{save_fname}'")
 
 def do_global_threshold(images):
@@ -93,8 +95,23 @@ def do_local_threshold(images, methods):
     for method in methods:
         v_print(f"({count}/{max_count})")
         for img_title, img in images.items():
-            apply_and_save(img, transformation=partial(local_threshold, method=method, window_size=args.window_size), 
-                           save_fname=f"{img_title}_{method}_{args.window_size}x{args.window_size}")
+            save_fname = f"{img_title}_{method}_{args.window_size}x{args.window_size}"
+            # if method == Method.NIBLACK:
+            #     transformation = partial(local_threshold, method=method, window_size=args.window_size,
+            #                              kwargs={ "k": args.k })
+            #     save_fname += f"_k{args.k}"
+            # elif method == Method.SAUVOLA_PIETAKSINEN:
+            #     transformation = partial(local_threshold, method=method, window_size=args.window_size,
+            #                              kwargs={ "k": args.k, "R": args.R })
+            #     save_fname += f"_k{args.k}_R{args.R}"
+            # elif method == Method.PHANSALKAR_MORE_SABALE:
+            #     transformation = partial(local_threshold, method=method, window_size=args.window_size,
+            #                              kwargs={ "k": args.k, "R": args.R, "p": args.p, "q": args.q })
+            #     save_fname += f"_k{args.k}_R{args.R}_p{args.p}_q{args.q}"
+            # else:
+            #     transformation = partial(local_threshold, method=method, window_size=args.window_size)
+            transformation = partial(local_threshold, method=method, window_size=args.window_size)
+            apply_and_save(img, transformation, save_fname)
             count += 1
     v_print("")
 
