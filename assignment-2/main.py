@@ -1,3 +1,4 @@
+import ast
 import sys
 import os.path
 import argparse
@@ -17,11 +18,14 @@ def get_parser():
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
     parser.add_argument("--threshold_value", "-t", type=int, default=128, choices=range(0, 256), metavar="[0..255]", 
                         help="Threshold value")
-    parser.add_argument("--window_size", "-s", type=int, default=3, choices=[1,3,5,7], 
-                        help="Pixel neighborhood window size (for the methods to which it applies)")
+    parser.add_argument("--window_size", "-s", type=int, default=3, choices=[1,3,5,7,9,11,13,15,17,19,21,23,25],
+                        help="Pixel neighborhood window size used in local thresholding methods")
     parser.add_argument("--method_index", "-m", type=int, choices=range(0, len(Method.list_all)), 
                         help="Index of the thresholding method to be used, where: " + 
                              ', '.join([f"{i}={x}" for i, x in enumerate(Method.list_all)]))
+    parser.add_argument("--custom_constants", "-cc", type=str, default={}, 
+                        help="File with a dictionary defining constants for niblack (k), " + 
+                             "sauvola_pietaksinen (k, R), and phansalkar_more_sabale (k, R, p, q)")
     parser.add_argument("--save_to_png", "-png", action="store_true", 
                         help="Stores the output images as .png instead of .pgm")
     return parser
@@ -96,21 +100,23 @@ def do_local_threshold(images, methods):
         v_print(f"({count}/{max_count})")
         for img_title, img in images.items():
             save_fname = f"{img_title}_{method}_{args.window_size}x{args.window_size}"
-            # if method == Method.NIBLACK:
-            #     transformation = partial(local_threshold, method=method, window_size=args.window_size,
-            #                              kwargs={ "k": args.k })
-            #     save_fname += f"_k{args.k}"
-            # elif method == Method.SAUVOLA_PIETAKSINEN:
-            #     transformation = partial(local_threshold, method=method, window_size=args.window_size,
-            #                              kwargs={ "k": args.k, "R": args.R })
-            #     save_fname += f"_k{args.k}_R{args.R}"
-            # elif method == Method.PHANSALKAR_MORE_SABALE:
-            #     transformation = partial(local_threshold, method=method, window_size=args.window_size,
-            #                              kwargs={ "k": args.k, "R": args.R, "p": args.p, "q": args.q })
-            #     save_fname += f"_k{args.k}_R{args.R}_p{args.p}_q{args.q}"
-            # else:
-            #     transformation = partial(local_threshold, method=method, window_size=args.window_size)
-            transformation = partial(local_threshold, method=method, window_size=args.window_size)
+
+            kwargs = {}
+            if method == Method.NIBLACK:
+                kwargs = { 'k': 0.2 }
+                kwargs.update(args.custom_constants.get(method, {}))
+                save_fname += f"_k{kwargs['k']}"
+            elif method == Method.SAUVOLA_PIETAKSINEN:
+                kwargs = { 'k': 0.5, 'R': 128 }
+                kwargs.update(args.custom_constants.get(method, {}))
+                save_fname += f"_k{kwargs['k']}_R{kwargs['R']}"
+            elif method == Method.PHANSALKAR_MORE_SABALE:
+                kwargs = { 'k': 0.25, 'R': 0.5, 'p': 2, 'q': 10 }
+                kwargs.update(args.custom_constants.get(method, {}))
+                save_fname += f"_k{kwargs['k']}_R{kwargs['R']}_p{kwargs['p']}_q{kwargs['q']}"
+            save_fname = save_fname.replace('.', '')
+            transformation = partial(local_threshold, method=method, window_size=args.window_size, **kwargs)
+            
             apply_and_save(img, transformation, save_fname)
             count += 1
     v_print("")
@@ -120,6 +126,13 @@ def do_local_threshold(images, methods):
 if __name__ == '__main__':
 
     parse_args()
+    if args.custom_constants != {}:
+        try:
+            with open(args.custom_constants, 'r') as file:
+                args.custom_constants = ast.literal_eval(file.read())
+        except:
+            print(f"ERROR: Couldn't load custom_constants from file: '{args.custom_constants}'")
+            args.custom_constants = {}
     if args.image == None:
         run_all = prompt_yes_no(default=True, 
                                 question=f"Do you want to threhsold all images inside '{os.path.join(args.input_folder, '')}'?")
@@ -149,3 +162,5 @@ if __name__ == '__main__':
     if len(methods) > 0:
         # local threhsolding
         do_local_threshold(images, methods)
+    
+    # TODO plot histograms and black/(blackl+white) percentage

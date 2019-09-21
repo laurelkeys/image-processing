@@ -40,11 +40,10 @@ def local_threshold(img, method, window_size=3, **kwargs):
     delta = (window_size - 1) // 2
     for y in range(height):
         for x in range(width):
-            # TODO treat borders/corner in a better way
             neighborhood = img[max(0, y-delta) : min(y+delta+1, height), 
                                max(0, x-delta) : min(x+delta+1, width)]
             __img[y, x] = __apply_local[method](**{ "pixel_value": img[y, x], 
-                                                    "kernel": neighborhood})
+                                                    "kernel": neighborhood}, **kwargs)
 
     return __img
 
