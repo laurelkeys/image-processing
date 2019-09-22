@@ -1,0 +1,8 @@
+'sonnet_global_128': 52.06% black
+'sonnet_bernsen_3x3': 34.27% black
+'sonnet_niblack_3x3_k02': 49.79% black
+'sonnet_sauvola_pietaksinen_3x3_k05_R128': 0.00% black
+'sonnet_phansalkar_more_sabale_3x3_k025_R05_p2_q10': 92.62% black
+'sonnet_contrast_3x3': 45.51% black
+'sonnet_mean_3x3': 40.60% black
+'sonnet_median_3x3': 15.94% black
