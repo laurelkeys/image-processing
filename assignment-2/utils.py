@@ -18,7 +18,7 @@ def is_gray(img):
 
 def normalize(img, min_v, max_v):
     ''' Returns a normalized array representation of img with min=min_v and max=max_v '''
-    norm_img = np.zeros(np.shape(img)) # dst output array
+    norm_img = np.zeros(np.shape(img)) # output dst array
     norm_img = cv2.normalize(img, norm_img, min_v, max_v, cv2.NORM_MINMAX)
     return norm_img
 
@@ -32,6 +32,10 @@ def clamp(v, min_v=0, max_v=255):
         __v[__v < min_v] = min_v
         __v[__v > max_v] = max_v
         return __v
+
+def pixel_value_count(img, value):
+    ''' Returns the amount of pixels in img with the given value '''
+    return (img == value).sum()
 
 ###############################################################################
 
@@ -58,6 +62,13 @@ def save(img, fname, folder=OUTPUT_FOLDER, ext=DEFAULT_EXT):
     if not fname.__contains__('.'):
         fname += ext
     cv2.imwrite(os.path.join(folder, fname), img)
+
+def save_hist(img, fname, folder=OUTPUT_FOLDER):
+    ''' Saves a histogram of img to os.path.join(folder, fname) as a PNG file'''
+    if not fname.__contains__('.'):
+        fname += ".png"
+    plt.hist(img.ravel(), 256, [0, 256])
+    plt.savefig(os.path.join(folder, fname), bbox_inches="tight")
 
 def split_name_ext(fname):
     ''' Returns a tuple (name, ext) such that name + ext == os.path.basename(fname)'''

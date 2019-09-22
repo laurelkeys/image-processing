@@ -1,7 +1,7 @@
 import numpy as np
 
-WHITE = 0
-BLACK = 255
+BLACK = 0
+WHITE = 255
 
 ''' Implemented thresholding methods '''
 class Method:
@@ -68,7 +68,7 @@ def __phansalkar_more_sabale(pixel_value, kernel, k=0.25, R=0.5, p=2, q=10):
     return BLACK if pixel_value < threshold else WHITE
 
 def __contrast(pixel_value, kernel):
-    # obs.: since min <= pixel_value <= max we don't need to use abs
+    # obs.: we don't need to use abs since min <= pixel_value <= max
     return BLACK if np.max(kernel) - pixel_value < pixel_value - np.min(kernel) else WHITE
 
 def __mean(pixel_value, kernel):

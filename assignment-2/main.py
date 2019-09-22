@@ -2,9 +2,12 @@ import ast
 import sys
 import os.path
 import argparse
+from os import linesep
 from functools import partial
 from thresholding import *
 from utils import *
+
+LOG_FILE_ENDING = "_black_pixel_fraction.log"
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Thresholding methods for binarizing grayscale images.")
@@ -83,7 +86,10 @@ def apply_and_save(img, transformation, save_fname):
     ''' Applies transformation to a copy of img and saves it '''
     transformed_img = transformation(img)
     save(transformed_img, save_fname, folder=args.output_folder, ext=".png" if args.save_to_png else DEFAULT_EXT)
-    v_print(f"Saved '{save_fname}'")
+    black_pixels_fraction = pixel_value_count(transformed_img, BLACK) / transformed_img.size
+    with open(os.path.join(args.output_folder, img_title + LOG_FILE_ENDING), 'a') as log: 
+        log.write(f"'{save_fname}': {100 * black_pixels_fraction:.2f}% black" + linesep)
+    v_print(f"Saved '{save_fname}' ({100 * black_pixels_fraction:.2f}% black)")
 
 def do_global_threshold(images):
     v_print("Applying global threshold...")
@@ -152,6 +158,9 @@ if __name__ == '__main__':
         img_title, _ = split_name_ext(img_fname)
         images[img_title] = load_gray(img_fname, folder=args.input_folder)
         v_print(f"'{img_fname}' loaded")
+        save_hist(images[img_title], img_title + "_hist", folder=args.output_folder)
+        with open(os.path.join(args.output_folder, img_title + LOG_FILE_ENDING), 'a+'):
+            pass
     v_print("")
 
     if Method.GLOBAL in methods:
@@ -162,5 +171,3 @@ if __name__ == '__main__':
     if len(methods) > 0:
         # local threhsolding
         do_local_threshold(images, methods)
-    
-    # TODO plot histograms and black/(blackl+white) percentage
