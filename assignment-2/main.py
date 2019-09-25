@@ -20,7 +20,7 @@ def get_parser():
     parser.add_argument("--output_folder", "-o", type=str, default=OUTPUT_FOLDER, 
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
     parser.add_argument("--threshold_value", "-t", type=int, default=128, choices=range(0, 256), metavar="[0..255]", 
-                        help="Threshold value")
+                        help="Threshold value for the global method")
     parser.add_argument("--window_size", "-s", type=int, default=3, choices=[1,3,5,7,9,11,13,15,17,19,21,23,25],
                         help="Pixel neighborhood window size used in local thresholding methods")
     parser.add_argument("--method_index", "-m", type=int, choices=range(0, len(Method.list_all)), 

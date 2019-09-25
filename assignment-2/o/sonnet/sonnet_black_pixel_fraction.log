@@ -6,3 +6,5 @@
 'sonnet_contrast_3x3': 45.51% black
 'sonnet_mean_3x3': 40.60% black
 'sonnet_median_3x3': 15.94% black
+'sonnet_niblack_15x15_k02': 54.48% black
+'sonnet_niblack_15x15_k-02': 32.72% black

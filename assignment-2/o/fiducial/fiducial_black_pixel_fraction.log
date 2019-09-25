@@ -30,3 +30,5 @@
 'fiducial_contrast_7x7': 37.59% black
 'fiducial_mean_7x7': 41.84% black
 'fiducial_median_7x7': 21.16% black
+'fiducial_niblack_15x15_k-02': 36.32% black
+'fiducial_niblack_15x15_k02': 52.44% black

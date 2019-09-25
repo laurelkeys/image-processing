@@ -23,14 +23,15 @@ optional arguments:
   --output_folder OUTPUT_FOLDER, -o OUTPUT_FOLDER
                         Output image(s) folder path (defaults to o\)
   --threshold_value [0..255], -t [0..255]
-                        Threshold value
+                        Threshold value for the global method
   --window_size {1,3,5,7,9,11,13,15,17,19,21,23,25}, -s {1,3,5,7,9,11,13,15,17,19,21,23,25}
                         Pixel neighborhood window size used in local
                         thresholding methods
   --method_index {0,1,2,3,4,5,6,7}, -m {0,1,2,3,4,5,6,7}
                         Index of the thresholding method to be used, where:
                         0=global, 1=bernsen, 2=niblack, 3=sauvola_pietaksinen,
-                        4=phansalkar_more_sabale, 5=contrast, 6=mean, 7=median
+                        4=phansalskar_more_sabale, 5=contrast, 6=mean,
+                        7=median
   --custom_constants CUSTOM_CONSTANTS, -cc CUSTOM_CONSTANTS
                         File with a dictionary defining constants for niblack
                         (k), sauvola_pietaksinen (k, R), and
