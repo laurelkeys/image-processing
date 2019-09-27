@@ -1,0 +1,8 @@
+'monarch_global_128': 77.55% black
+'monarch_bernsen_3x3': 45.45% black
+'monarch_niblack_3x3_k02': 61.75% black
+'monarch_sauvola_pietaksinen_3x3_k05_R128': 0.85% black
+'monarch_phansalskar_more_sabale_3x3_k025_R05_p2_q10': 99.54% black
+'monarch_contrast_3x3': 45.43% black
+'monarch_mean_3x3': 48.39% black
+'monarch_median_3x3': 27.42% black

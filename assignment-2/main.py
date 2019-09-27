@@ -28,7 +28,7 @@ def get_parser():
                              ', '.join([f"{i}={x}" for i, x in enumerate(Method.list_all)]))
     parser.add_argument("--custom_constants", "-cc", type=str, default={}, 
                         help="File with a dictionary defining constants for niblack (k), " + 
-                             "sauvola_pietaksinen (k, R), and phansalkar_more_sabale (k, R, p, q)")
+                             "sauvola_pietaksinen (k, R), and phansalskar_more_sabale (k, R, p, q)")
     parser.add_argument("--save_to_png", "-png", action="store_true", 
                         help="Stores the output images as .png instead of .pgm")
     return parser
@@ -116,7 +116,7 @@ def do_local_threshold(images, methods):
                 kwargs = { 'k': 0.5, 'R': 128 }
                 kwargs.update(args.custom_constants.get(method, {}))
                 save_fname += f"_k{kwargs['k']}_R{kwargs['R']}"
-            elif method == Method.PHANSALKAR_MORE_SABALE:
+            elif method == Method.PHANSALSKAR_MORE_SABALE:
                 kwargs = { 'k': 0.25, 'R': 0.5, 'p': 2, 'q': 10 }
                 kwargs.update(args.custom_constants.get(method, {}))
                 save_fname += f"_k{kwargs['k']}_R{kwargs['R']}_p{kwargs['p']}_q{kwargs['q']}"

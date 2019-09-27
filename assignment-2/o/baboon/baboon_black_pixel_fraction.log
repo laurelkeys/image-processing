@@ -1,0 +1,8 @@
+'baboon_global_128': 46.15% black
+'baboon_bernsen_3x3': 49.05% black
+'baboon_niblack_3x3_k02': 60.29% black
+'baboon_sauvola_pietaksinen_3x3_k05_R128': 1.94% black
+'baboon_phansalskar_more_sabale_3x3_k025_R05_p2_q10': 99.73% black
+'baboon_contrast_3x3': 48.01% black
+'baboon_mean_3x3': 49.80% black
+'baboon_median_3x3': 36.69% black
