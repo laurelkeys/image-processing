@@ -24,10 +24,13 @@ def global_threshold(img, threshold=128):
     __img = np.where(__img < threshold, BLACK, WHITE)
     return __img
 
-def local_threshold(img, method, window_size=3, **kwargs):
+def local_threshold(img, method, window_size=3, C=0, **kwargs):
     ''' Returns a new binary image based on the given threshold by applying the specified method 
         to each pixel of img, considering a neighborhood of window_size x window_size
         
+        C is added to the pixel value before comparing it to the local threshold, this way you can 
+        make most pixels in a uniform neighboorhood get segmented into the same class by making C != 0
+
         **kwargs should be passed when method is:
           - NIBLACK { "k": k }
           - SAUVOLA_PIETAKSINEN { "k": k, "R": R }
@@ -42,7 +45,7 @@ def local_threshold(img, method, window_size=3, **kwargs):
         for x in range(width):
             neighborhood = img[max(0, y-delta) : min(y+delta+1, height), 
                                max(0, x-delta) : min(x+delta+1, width)]
-            __img[y, x] = __apply_local[method](**{ "pixel_value": img[y, x], 
+            __img[y, x] = __apply_local[method](**{ "pixel_value": img[y, x] + C, 
                                                     "kernel": neighborhood}, **kwargs)
 
     return __img

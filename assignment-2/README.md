@@ -9,6 +9,7 @@ usage: main.py [-h] [--plain]
                [--method_index {0,1,2,3,4,5,6,7}]
                [--custom_constants CUSTOM_CONSTANTS]
                [--save_to_png]
+               [--shift_constant [-255..255]]
 
 Thresholding methods for binarizing grayscale images.
 
@@ -37,4 +38,7 @@ optional arguments:
                         (k), sauvola_pietaksinen (k, R), and
                         phansalkar_more_sabale (k, R, p, q)
   --save_to_png, -png   Stores the output images as .png instead of .pgm
+  --shift_constant [-255..255], -C [-255..255]
+                        Value added to the pixel intensity before comparing it
+                        to the local threshold (defaults to 0)
 ```

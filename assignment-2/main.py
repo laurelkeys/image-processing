@@ -31,6 +31,8 @@ def get_parser():
                              "sauvola_pietaksinen (k, R), and phansalskar_more_sabale (k, R, p, q)")
     parser.add_argument("--save_to_png", "-png", action="store_true", 
                         help="Stores the output images as .png instead of .pgm")
+    parser.add_argument("--shift_constant", "-C", type=int, default=0, choices=range(-255, 256), metavar="[-255..255]", 
+                        help="Value added to the pixel intensity before comparing it to the local threshold (defaults to 0)")
     return parser
 
 args = None
@@ -122,6 +124,10 @@ def do_local_threshold(images, methods):
                 save_fname += f"_k{kwargs['k']}_R{kwargs['R']}_p{kwargs['p']}_q{kwargs['q']}"
             save_fname = save_fname.replace('.', '')
             transformation = partial(local_threshold, method=method, window_size=args.window_size, **kwargs)
+
+            if args.shift_constant != 0:
+                transformation = partial(transformation, C=args.shift_constant)
+                save_fname += f"_C{args.shift_constant}"
             
             apply_and_save(img, transformation, save_fname)
             count += 1
