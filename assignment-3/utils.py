@@ -10,6 +10,13 @@ OUTPUT_FOLDER = "o"
 
 DEFAULT_EXT = ".png"
 
+BLACK = 0
+WHITE = 255
+
+BGR_BLUE  = (255,  0 ,  0 )
+BGR_GREEN = ( 0 , 255,  0 )
+BGR_RED   = ( 0 ,  0 , 255)
+
 ###############################################################################
 
 def is_gray(img):

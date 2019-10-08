@@ -88,6 +88,16 @@ def do_monochrome(images):
         count += 1
     v_print("")
 
+def do_contours(images):
+    v_print("Drawing contours...")
+    count = 1
+    max_count = len(images.items())
+    for img_title, img in images.items():
+        v_print(f"({count}/{max_count})")
+        apply_and_save(img, transformation=contours, save_fname=f"{img_title}_contours")
+        count += 1
+    v_print("")
+
 ###############################################################################
 
 if __name__ == '__main__':
@@ -113,3 +123,4 @@ if __name__ == '__main__':
     
     # transformations
     do_monochrome(images)
+    do_contours(images)
