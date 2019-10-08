@@ -4,7 +4,7 @@ import numpy as np
 from utils import BGR_RED, WHITE
 
 def contours(img, objects_are_black=True, draw_bbox=False):
-    ''' Display the contours (edges) of objects present in img '''
+    ''' Returns an image displaying the contours (edges) of objects present in img '''
     __img = color_to_black(img).astype('uint8')
     contours, _ = cv2.findContours(__img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     return cv2.drawContours(np.full(img.shape, WHITE), contours if draw_bbox else contours[1:], -1, BGR_RED)

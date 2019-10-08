@@ -98,6 +98,16 @@ def do_contours(images):
         count += 1
     v_print("")
 
+def do_measurements(images):
+    v_print("Taking measurements...")
+    count = 1
+    max_count = len(images.items())
+    for img_title, img in images.items():
+        v_print(f"({count}/{max_count})")
+        apply_and_save(img, transformation=number_regions, save_fname=f"{img_title}_regions")
+        count += 1
+    v_print("")
+
 ###############################################################################
 
 if __name__ == '__main__':
@@ -122,5 +132,8 @@ if __name__ == '__main__':
     v_print("")
     
     # transformations
-    do_monochrome(images)
-    do_contours(images)
+    # do_monochrome(images)
+    # do_contours(images)
+
+    # measurements
+    do_measurements(images)
