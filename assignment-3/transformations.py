@@ -33,20 +33,6 @@ def contours(img, objects_are_black=True, draw_bbox=False):
 
 ###############################################################################
 
-def print_region_properties(properties):
-    ''' Pretty prints a region properties dictionary '''
-    n_of_regions = len(properties)
-    region_padding = len(str(n_of_regions))
-    print(f"número de regiões: {n_of_regions}")
-    for region in properties.keys():
-        print("região {0:{1}d}:  área: {2:4.0f}  perímetro: {3:10.6f}  "
-              "excentricidade: {4:8.6f}  solidez: {5:8.6f}".format(
-                  region, region_padding, 
-                  properties[region]['area'], properties[region]['perimeter'], 
-                  properties[region]['eccentricity'], properties[region]['solidity']
-              )
-        )
-
 def number_regions(img, disconsider_bbox=True):
     ''' Returns an image with each object (region) in img numbered at its centroid\n
         and a dictionary with the area, perimeter, eccentricity and solidity for each object '''
@@ -71,6 +57,47 @@ def number_regions(img, disconsider_bbox=True):
     
     return cv2.addWeighted(img, 0.5, text_layer, 0.5, 0), properties
 
+def print_region_properties(properties):
+    ''' Pretty prints a region properties dictionary '''
+    n_of_regions = len(properties)
+    region_padding = len(str(n_of_regions))
+    print(f"número de regiões: {n_of_regions}")
+    for region in properties.keys():
+        print("região {0:{1}d}:  área: {2:4.0f}  perímetro: {3:10.6f}  "
+              "excentricidade: {4:8.6f}  solidez: {5:8.6f}".format(
+                  region, region_padding, 
+                  properties[region]['area'], properties[region]['perimeter'], 
+                  properties[region]['eccentricity'], properties[region]['solidity']
+              )
+        )
+
+###############################################################################
+
+def area_hist(properties, print_regions_per_area=True, limits=[1500, 3000]):
+    ''' Returns an image with a histogram of region areas grouped into 'small', 'medium' and 'large'\n
+        The classification criteria is the following:
+            'small':  area  < limits[0]
+            'medium': area >= limits[0] and area < limits[1]
+            'large':  area >= limits[1]
+        
+        If print_regions_per_area is True then the amount of regions per area group is printed '''
+    small = medium = large = 0
+    areas = []
+    for region in properties.keys():
+        area = properties[region]['area']
+        areas.append(area)
+        if   area < limits[0]: small  += 1
+        elif area < limits[1]: medium += 1
+        else:                  large  += 1
+    if print_regions_per_area:
+        padding = len(str(max(small, medium, large)))
+        print(f"número de regiões pequenas: {small:{padding}d}")
+        print(f"número de regiões médias: {medium:{2+padding}d}")
+        print(f"número de regiões grandes: {large:{1+padding}d}")
+    # FIXME TODO return the histogram
+
+###############################################################################
+
 def __centroid(M):
     return int(M['m10'] / M['m00']), int(M['m01'] / M['m00']) # cx, cy
 
@@ -88,5 +115,3 @@ def __solidity(contour, area=None):
     hull = cv2.convexHull(contour)
     hull_area = cv2.contourArea(hull)
     return area / hull_area
-
-###############################################################################

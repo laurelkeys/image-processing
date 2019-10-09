@@ -107,6 +107,8 @@ def do_measurements(images):
         
         print_region_properties(region_properties)
         
+        area_hist(region_properties)
+
         save_fname = f"{img_title}_regions"
         save(numbered_img, save_fname, folder=args.output_folder)
         v_print(f"Saved '{save_fname}'")
@@ -138,8 +140,8 @@ if __name__ == '__main__':
     v_print("")
     
     # transformations
-    # do_monochrome(images)
-    # do_contours(images)
+    do_monochrome(images)
+    do_contours(images)
 
     # measurements
     do_measurements(images)
