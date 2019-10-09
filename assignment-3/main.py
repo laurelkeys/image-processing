@@ -3,7 +3,6 @@ import sys
 import os.path
 import argparse
 from utils import *
-from measurements import *
 from transformations import *
 
 def get_parser():
@@ -104,14 +103,21 @@ def do_measurements(images):
     max_count = len(images.items())
     for img_title, img in images.items():
         v_print(f"({count}/{max_count})")
-        apply_and_save(img, transformation=number_regions, save_fname=f"{img_title}_regions")
+        numbered_img, region_properties = number_regions(img)
+        
+        print_region_properties(region_properties)
+        
+        save_fname = f"{img_title}_regions"
+        save(numbered_img, save_fname, folder=args.output_folder)
+        v_print(f"Saved '{save_fname}'")
+        v_print("")
+        
         count += 1
     v_print("")
 
 ###############################################################################
 
 if __name__ == '__main__':
-
     parse_args()
     if args.image == None:
         run_all = prompt_yes_no(default=True, 

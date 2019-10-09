@@ -3,11 +3,7 @@ import numpy as np
 
 from utils import BGR_RED, WHITE
 
-def contours(img, objects_are_black=True, draw_bbox=False):
-    ''' Returns an image displaying the contours (edges) of objects present in img '''
-    __img = color_to_black(img).astype('uint8')
-    contours, _ = cv2.findContours(__img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    return cv2.drawContours(np.full(img.shape, WHITE), contours if draw_bbox else contours[1:], -1, BGR_RED)
+###############################################################################
 
 def color_to_black(img):
     ''' Converts every non-white pixel of a colored image to black, returning a binary image '''
@@ -26,4 +22,71 @@ def y_linear(img, bgr=True):
 def y_srgb(img, bgr=True):
     __img = y_linear(img, bgr) / 255
     return 255 * np.where(__img <= 0.0031308, 12.92 * __img, 1.055 * np.power(__img, 1/2.4) - 0.055)
+
+###############################################################################
+
+def contours(img, objects_are_black=True, draw_bbox=False):
+    ''' Returns an image displaying the contours (edges) of objects present in img '''
+    __img = color_to_black(img).astype('uint8')
+    contours, _ = cv2.findContours(__img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    return cv2.drawContours(np.full(img.shape, WHITE), contours if draw_bbox else contours[1:], -1, BGR_RED)
+
+###############################################################################
+
+def print_region_properties(properties):
+    ''' Pretty prints a region properties dictionary '''
+    n_of_regions = len(properties)
+    region_padding = len(str(n_of_regions))
+    print(f"número de regiões: {n_of_regions}")
+    for region in properties.keys():
+        print("região {0:{1}d}:  área: {2:4.0f}  perímetro: {3:10.6f}  "
+              "excentricidade: {4:8.6f}  solidez: {5:8.6f}".format(
+                  region, region_padding, 
+                  properties[region]['area'], properties[region]['perimeter'], 
+                  properties[region]['eccentricity'], properties[region]['solidity']
+              )
+        )
+
+def number_regions(img, disconsider_bbox=True):
+    ''' Returns an image with each object (region) in img numbered at its centroid\n
+        and a dictionary with the area, perimeter, eccentricity and solidity for each object '''
+    __img = color_to_black(img).astype('uint8')
+    contours, _ = cv2.findContours(__img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if disconsider_bbox:
+        contours = contours[1:]
     
+    text_layer = np.full(img.shape, WHITE, dtype='uint8')
+    properties = { region: dict() for region in range(len(contours)) }
+    for region, contour in enumerate(reversed(contours)):
+        M = cv2.moments(contour)
+        cx, cy = __centroid(M)
+        org = (cx - (4 if region < 10 else 8), cy + 4)
+        cv2.putText(text_layer, str(region), org, color=(0, 0, 0), thickness=1, 
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.4, lineType=cv2.LINE_AA)
+        properties[region]['centroid']     = (cx, cy)
+        properties[region]['area']         = M['m00']
+        properties[region]['perimeter']    = cv2.arcLength(contour, True)
+        properties[region]['eccentricity'] = __eccentricity(M)
+        properties[region]['solidity']     = __solidity(contour, M['m00'])
+    
+    return cv2.addWeighted(img, 0.5, text_layer, 0.5, 0), properties
+
+def __centroid(M):
+    return int(M['m10'] / M['m00']), int(M['m01'] / M['m00']) # cx, cy
+
+def __eccentricity(M):
+    # FIXME
+    lhs = M['mu20'] + M['mu02']
+    rhs = np.sqrt(4 * M['mu11']**2 + (M['mu20'] - M['mu02'])**2)
+    lambda1 = lhs - rhs # minor axis
+    lambda2 = lhs + rhs # major axis
+    return np.sqrt(1 - (lambda1 / lambda2))
+
+def __solidity(contour, area=None):
+    if area is None:
+        area = cv2.contourArea(contour)
+    hull = cv2.convexHull(contour)
+    hull_area = cv2.contourArea(hull)
+    return area / hull_area
+
+###############################################################################
