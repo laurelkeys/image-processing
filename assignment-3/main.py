@@ -1,9 +1,11 @@
-import ast
+import io
 import sys
 import os.path
 import argparse
 from utils import *
 from transformations import *
+
+REGION_PROPERTIES_LOG = "region_properties.txt"
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Some measurements and transformations of objects present in digital images.")
@@ -17,6 +19,9 @@ def get_parser():
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
     parser.add_argument("--display_images", "-d", action="store_true", 
                         help="Display image transformations, besides saving them")
+    parser.add_argument("--save_region_properties", "-r", action="store_true", 
+                        help=f"Saves region properties to {REGION_PROPERTIES_LOG} "
+                               "(appends them if the file already exists), besides printing them")
     return parser
 
 args = None
@@ -108,11 +113,19 @@ def do_measurements(images):
         numbered_img, region_properties = number_regions(img)
         
         print_region_properties(region_properties)
+        if args.save_region_properties:
+            f = io.open(os.path.join(args.output_folder, REGION_PROPERTIES_LOG), 
+                        mode='a', encoding="utf-8")
+            print("", file=f)
+            print_region_properties(region_properties, file=f)
+            f.close()
         
-        save_area_hist(region_properties, f"{img_title}_regions_hist", display_hist=args.display_images)
-
         save_fname = f"{img_title}_regions"
+        if args.display_images:
+            show(numbered_img, save_fname)        
+        save_area_hist(region_properties, f"{save_fname}_hist", display_hist=args.display_images)
         save(numbered_img, save_fname, folder=args.output_folder)
+        v_print(f"Saved '{save_fname}_hist'")
         v_print(f"Saved '{save_fname}'")
         v_print("")
         

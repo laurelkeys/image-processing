@@ -1,4 +1,5 @@
 import os
+import sys
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -59,19 +60,18 @@ def number_regions(img, disconsider_bbox=True):
     
     return cv2.addWeighted(img, 0.5, text_layer, 0.5, 0), properties
 
-def print_region_properties(properties):
-    ''' Pretty prints a region properties dictionary '''
+def print_region_properties(properties, file=sys.stdout):
+    ''' Pretty prints a region properties dictionary  '''
     n_of_regions = len(properties)
     region_padding = len(str(n_of_regions))
-    print(f"número de regiões: {n_of_regions}")
+    print(f"número de regiões: {n_of_regions}", file=file)
     for region in properties.keys():
         print("região {0:{1}d}:  área: {2:4.0f}  perímetro: {3:10.6f}  "
               "excentricidade: {4:8.6f}  solidez: {5:8.6f}".format(
                   region, region_padding, 
                   properties[region]['area'], properties[region]['perimeter'], 
                   properties[region]['eccentricity'], properties[region]['solidity']
-              )
-        )
+              ), file=file)
 
 ###############################################################################
 
