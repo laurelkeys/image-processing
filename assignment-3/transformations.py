@@ -1,7 +1,9 @@
+import os
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
-from utils import BGR_RED, WHITE
+from utils import BGR_RED, WHITE, OUTPUT_FOLDER, DEFAULT_EXT
 
 ###############################################################################
 
@@ -73,14 +75,16 @@ def print_region_properties(properties):
 
 ###############################################################################
 
-def area_hist(properties, print_regions_per_area=True, limits=[1500, 3000]):
-    ''' Returns an image with a histogram of region areas grouped into 'small', 'medium' and 'large'\n
+def save_area_hist(properties, fname, folder=OUTPUT_FOLDER, display_hist=False, 
+                   print_regions_per_area=True, limits=[1500, 3000]):
+    ''' Saves a histogram of region areas grouped into 'small', 'medium' and 'large'
+        to os.path.join(folder, fname) as a PNG file\n
         The classification criteria is the following:
             'small':  area  < limits[0]
             'medium': area >= limits[0] and area < limits[1]
             'large':  area >= limits[1]
         
-        If print_regions_per_area is True then the amount of regions per area group is printed '''
+        If print_regions_per_area is True then the number of regions per area group is printed '''
     small = medium = large = 0
     areas = []
     for region in properties.keys():
@@ -92,9 +96,18 @@ def area_hist(properties, print_regions_per_area=True, limits=[1500, 3000]):
     if print_regions_per_area:
         padding = len(str(max(small, medium, large)))
         print(f"número de regiões pequenas: {small:{padding}d}")
-        print(f"número de regiões médias: {medium:{2+padding}d}")
-        print(f"número de regiões grandes: {large:{1+padding}d}")
-    # FIXME TODO return the histogram
+        print(f"número de regiões médias:   {medium:{padding}d}")
+        print(f"número de regiões grandes:  {large:{padding}d}")
+    if not fname.__contains__('.'):
+        fname += ".png"
+    max_area = max(areas)
+    plt.clf()
+    plt.xlabel('Área')
+    plt.ylabel('Número de Objetos')
+    plt.hist(areas, bins=[0, limits[0], limits[1], max(limits[1], max_area)], facecolor='blue', edgecolor='black')
+    if display_hist:
+        plt.show()
+    plt.savefig(os.path.join(folder, fname), bbox_inches="tight")
 
 ###############################################################################
 

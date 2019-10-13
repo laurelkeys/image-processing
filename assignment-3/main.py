@@ -15,7 +15,7 @@ def get_parser():
                         help="Input image(s) folder path" + f" (defaults to {os.path.join(INPUT_FOLDER, '')})")
     parser.add_argument("--output_folder", "-o", type=str, default=OUTPUT_FOLDER, 
                         help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
-    parser.add_argument("--show", "-s", action="store_true", 
+    parser.add_argument("--display_images", "-d", action="store_true", 
                         help="Display image transformations, besides saving them")
     return parser
 
@@ -71,6 +71,8 @@ def ready_image_fnames():
 def apply_and_save(img, transformation, save_fname):
     ''' Applies transformation to a copy of img and saves it '''
     transformed_img = transformation(img)
+    if args.display_images:
+        show(transformed_img, save_fname)
     save(transformed_img, save_fname, folder=args.output_folder)
     v_print(f"Saved '{save_fname}'")
 
@@ -80,10 +82,10 @@ def do_monochrome(images):
     max_count = len(images.items())
     for img_title, img in images.items():
         v_print(f"({count}/{max_count})")
-        # FIXME should we convert to binary or grayscale?
         apply_and_save(img, transformation=color_to_black, save_fname=f"{img_title}_mono")
-        apply_and_save(img, transformation=y_linear, save_fname=f"{img_title}_ylinear")
-        apply_and_save(img, transformation=y_srgb, save_fname=f"{img_title}_ysrgb")
+        # convert to grayscale
+        # apply_and_save(img, transformation=y_linear, save_fname=f"{img_title}_ylinear")
+        # apply_and_save(img, transformation=y_srgb, save_fname=f"{img_title}_ysrgb")
         count += 1
     v_print("")
 
@@ -107,7 +109,7 @@ def do_measurements(images):
         
         print_region_properties(region_properties)
         
-        area_hist(region_properties)
+        save_area_hist(region_properties, f"{img_title}_regions_hist", display_hist=args.display_images)
 
         save_fname = f"{img_title}_regions"
         save(numbered_img, save_fname, folder=args.output_folder)

@@ -46,11 +46,11 @@ def show(img, img_title=""):
     ''' Shows img without changing its pixel values for display '''
     plt.axis("off")
     plt.title(img_title)
-    # FIXME
     if is_gray(img):
         plt.imshow(img, vmin=0, vmax=255, cmap="gray")
     else:
-        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # FIXME
+        rgb_img = cv2.cvtColor(img.astype('uint8'), cv2.COLOR_BGR2RGB)
         plt.imshow(rgb_img, vmin=0, vmax=255)
     plt.show()
 
