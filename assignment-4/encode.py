@@ -48,10 +48,10 @@ if __name__ == '__main__':
     print(f"Input: {args.input_image}")
     print(f"Output: {args.output_image}")
 
+    # read message lines into an array
     with open(args.message, 'r') as txt_file:
         lines = [line.encode('ascii') for line in txt_file.readlines()]
     print(f"Message: {args.message}")
-    print(f"\n{lines}")
 
     # load image
     bgr_img = cv2.imread(args.input_image, cv2.IMREAD_COLOR)
@@ -62,30 +62,41 @@ if __name__ == '__main__':
 
     # create a byte array representation of the message
     message = b''.join(lines)
-    print(f"\n{message}") # print(f"\n{message.decode('ascii')}")
-    
+    print(" |> '" + message.decode('ascii') + "'")
     message_bytes = to_byte_array(message)
-    print(f"\n{message_bytes}")
 
+    # create a bit array representation
     message_bits = np.unpackbits(message_bytes)
-    print(f"\n{to_bit_str(message_bits)}")
-    print(f"\n{message_bits}")
     if message_bits.size > max_bits:
-        print("\nThe message is too big to fit in the image, only its start will be saved:")
         message_bits = message_bits[:max_bits]
-        print(f"{to_bit_str(message_bits)}")
-        print(f"{message_bits}")
-        print("'" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
+        print("\nThe message is too big to fit in the image, only its start will be saved:")
+        print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
+        print(" |> '" + to_bit_str(message_bits) + "'")
+    else:
+        print(" |> '" + to_bit_str(message_bits) + "'")
+    print()
 
     r_message = message_bits[0::3]
     g_message = message_bits[1::3]
     b_message = message_bits[2::3]
-    print(r_message); print(g_message); print(b_message)
+    print("R channel:", r_message)
+    print("G channel:", g_message)
+    print("B channel:", b_message)
+    print()
 
-    r_message = np.pad(r_message, (0, height*width - r_message.size), constant_values=0)
-    g_message = np.pad(g_message, (0, height*width - g_message.size), constant_values=0)
-    b_message = np.pad(b_message, (0, height*width - b_message.size), constant_values=0)
-    print(r_message); print(g_message); print(b_message)
+    if height*width > r_message.size: r_message = np.pad(r_message, (0, height*width - r_message.size), constant_values=0)
+    if height*width > g_message.size: g_message = np.pad(g_message, (0, height*width - g_message.size), constant_values=0)
+    if height*width > b_message.size: b_message = np.pad(b_message, (0, height*width - b_message.size), constant_values=0)
+
+    # FIXME OpenCV uses BGR order
+    message_plane = np.zeros(bgr_img.shape, 'uint8')
+    message_plane[..., 0] = r_message.reshape((height, width))
+    message_plane[..., 1] = g_message.reshape((height, width))
+    message_plane[..., 2] = b_message.reshape((height, width))
+    print(message_plane)
+    print(f"Hiding message on bit plane {args.bit_plane}..")
+    # print(bgr_img)
+    # print(np.where( == 0, bgr_img, 37))
 
     # TODO embed message_bits into the image
     
