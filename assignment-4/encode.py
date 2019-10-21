@@ -1,6 +1,7 @@
 import sys
 import os.path
 import argparse
+import numpy as np
 from utils import *
 
 def get_parser():
@@ -54,6 +55,10 @@ if __name__ == '__main__':
 
     # load image
     bgr_img = cv2.imread(args.input_image, cv2.IMREAD_COLOR)
+    height, width, depth = bgr_img.shape
+    max_bits = height * width * depth
+    while max_bits % 8 != 0:
+        max_bits -= 1 # we can only store whole byte words
 
     # create a byte array representation of the message
     message = b''.join(lines)
@@ -63,8 +68,24 @@ if __name__ == '__main__':
     print(f"\n{message_bytes}")
 
     message_bits = np.unpackbits(message_bytes)
-    print(f"\n{message_bits}")
     print(f"\n{to_bit_str(message_bits)}")
+    print(f"\n{message_bits}")
+    if message_bits.size > max_bits:
+        print("\nThe message is too big to fit in the image, only its start will be saved:")
+        message_bits = message_bits[:max_bits]
+        print(f"{to_bit_str(message_bits)}")
+        print(f"{message_bits}")
+        print("'" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
+
+    r_message = message_bits[0::3]
+    g_message = message_bits[1::3]
+    b_message = message_bits[2::3]
+    print(r_message); print(g_message); print(b_message)
+
+    r_message = np.pad(r_message, (0, height*width - r_message.size), constant_values=0)
+    g_message = np.pad(g_message, (0, height*width - g_message.size), constant_values=0)
+    b_message = np.pad(b_message, (0, height*width - b_message.size), constant_values=0)
+    print(r_message); print(g_message); print(b_message)
 
     # TODO embed message_bits into the image
     
