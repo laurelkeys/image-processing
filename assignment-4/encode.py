@@ -89,14 +89,33 @@ if __name__ == '__main__':
     if height*width > b_message.size: b_message = np.pad(b_message, (0, height*width - b_message.size), constant_values=0)
 
     # FIXME OpenCV uses BGR order
-    message_plane = np.zeros(bgr_img.shape, 'uint8')
+    message_plane = np.zeros(bgr_img.shape, dtype='uint8')
     message_plane[..., 0] = r_message.reshape((height, width))
     message_plane[..., 1] = g_message.reshape((height, width))
     message_plane[..., 2] = b_message.reshape((height, width))
     print(message_plane)
+    print()
+
     print(f"Hiding message on bit plane {args.bit_plane}..")
-    # print(bgr_img)
-    # print(np.where( == 0, bgr_img, 37))
+    #    bit_plane
+    #        v
+    # 0xHH..HbH..H == (0xHH..H0H..H | 0x00..0b0..0) == ((0xHH..HHH..H & 0x11..101..1) | 0x00..0b0..0)
+	#        ^
+	# obs.: 0x11..101..1 == ~0x00..010..0 == ~(0x00..000..1 << bit_plane)
+	#       0x00..0b0..0 == (0x00..000..b << bit_plane), b in {0, 1}
+    mask = 1 << args.bit_plane
+    __img = np.bitwise_and(bgr_img, ~mask)
+    __img = np.bitwise_or(__img, message_plane << args.bit_plane)
+    
+    def print_binary_repr(arr):
+        print(np.array([np.binary_repr(elem).zfill(8) for elem in arr.flatten()]).reshape(arr.shape))
+    # print("Original image:")
+    # print_binary_repr(bgr_img)
+    # print(f"\nMessage in bit plane {args.bit_plane}:")
+    # print_binary_repr(message_plane << args.bit_plane)
+    # print("\nImage with message embedded:")
+    # print_binary_repr(__img)
+    
 
     # TODO embed message_bits into the image
     
