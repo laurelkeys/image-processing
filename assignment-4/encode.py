@@ -71,18 +71,19 @@ if __name__ == '__main__':
         message_bits = message_bits[:max_bits]
         print("\nThe message is too big to fit in the image, only its start will be saved:")
         print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
-        print(" |> '" + to_bit_str(message_bits) + "'")
+        # print(" |> '" + to_bit_str(message_bits) + "'")
     else:
-        print(" |> '" + to_bit_str(message_bits) + "'")
+        # print(" |> '" + to_bit_str(message_bits) + "'")
+        pass
     print()
 
     r_message = message_bits[0::3]
     g_message = message_bits[1::3]
     b_message = message_bits[2::3]
-    print("R channel:", r_message)
-    print("G channel:", g_message)
-    print("B channel:", b_message)
-    print()
+    # print("R channel:", r_message)
+    # print("G channel:", g_message)
+    # print("B channel:", b_message)
+    # print()
 
     if height*width > r_message.size: r_message = np.pad(r_message, (0, height*width - r_message.size), constant_values=0)
     if height*width > g_message.size: g_message = np.pad(g_message, (0, height*width - g_message.size), constant_values=0)
@@ -93,8 +94,8 @@ if __name__ == '__main__':
     message_plane[..., 0] = r_message.reshape((height, width))
     message_plane[..., 1] = g_message.reshape((height, width))
     message_plane[..., 2] = b_message.reshape((height, width))
-    print(message_plane)
-    print()
+    # print(message_plane)
+    # print()
 
     print(f"Hiding message on bit plane {args.bit_plane}..")
     #    bit_plane
@@ -115,15 +116,9 @@ if __name__ == '__main__':
     # print_binary_repr(message_plane << args.bit_plane)
     # print("\nImage with message embedded:")
     # print_binary_repr(__img)
-    
 
-    # TODO embed message_bits into the image
-    
-    # for plane in range(0, 8):
-    #     img = (test_img[0] >> plane) & 1
-    #     title = f"1.3 {test_img[1]} (plano de bit {plane})"
-    #     show_grayscale(np.where(img, 255, 0), title, save_fname=title)
-    #     plt.show()
+    cv2.imwrite(args.output_image, __img)
+    print(f"Image saved to '{args.output_image}'")
 
 # >>> chr(10)
 # '\n'
