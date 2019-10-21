@@ -23,6 +23,18 @@ def to_byte_array(string):
         array[i] = char
     return array
 
+def to_bit_str(bit_array):
+    b = 0
+    bit_str = ""
+    for bit in bit_array:
+        bit_str += str(bit)
+        b += 1
+        if b == 8:
+            b = 0
+            bit_str += ' '
+    return bit_str
+    # https://www.rapidtables.com/convert/number/binary-to-ascii.html
+
 ###############################################################################
 
 if __name__ == '__main__':
@@ -46,9 +58,16 @@ if __name__ == '__main__':
     # create a byte array representation of the message
     message = b''.join(lines)
     print(f"\n{message}") # print(f"\n{message.decode('ascii')}")
+    
     message_bytes = to_byte_array(message)
     print(f"\n{message_bytes}")
 
+    message_bits = np.unpackbits(message_bytes)
+    print(f"\n{message_bits}")
+    print(f"\n{to_bit_str(message_bits)}")
+
+    # TODO embed message_bits into the image
+    
     # for plane in range(0, 8):
     #     img = (test_img[0] >> plane) & 1
     #     title = f"1.3 {test_img[1]} (plano de bit {plane})"
