@@ -12,6 +12,8 @@ def get_parser():
                         help="Text file name (with path), containing the message to hide")
     parser.add_argument("--output_image", "-o", type=str, 
                         help="Output image file name (with path)")
+    parser.add_argument("--output_folder", "-of", type=str, default=os.path.join(OUTPUT_FOLDER, ''), 
+                        help="Ignored if [output_image] is passed (default: %(default)s)")
     parser.add_argument("--bit_plane", "-b", type=int, choices=range(0, 8), default=0, 
                         help="Bit plane in which to hide the message (default: %(default)d)")
     parser.add_argument("--verbose", "-v", action="store_true", 
@@ -26,9 +28,11 @@ def validate_file_paths(args):
     if not os.path.isfile(args.message):
         sys.exit(f"\nERROR: Invalid message file path '{args.message}'")
     if args.output_image == None:
-        root, ext = os.path.splitext(args.input_image)
-        message_fname, _ = os.path.splitext(os.path.basename(args.message))
-        args.output_image = f"{root}-{message_fname}-b{args.bit_plane}{ext}"
+        root, image_fname, ext = split_root_name_ext(args.input_image)
+        _, message_fname, _ = split_root_name_ext(args.message)
+        if args.output_folder != None:
+            root = args.output_folder
+        args.output_image = os.path.join(root, f"{image_fname}-{message_fname}-b{args.bit_plane}{ext}")
     create_folder(args.output_image) # creates the output folder if it doesn't exist
 
 ###############################################################################
@@ -64,9 +68,8 @@ if __name__ == '__main__':
     print(f"Output: {args.output_image}")
     print(f"Message: {args.message}")
 
-    # load image
-    bgr_img = cv2.imread(args.input_image, cv2.IMREAD_COLOR)
-    
+    bgr_img = load(full_path=args.input_image)
+
     # calculate the max number of bits we can hide on the image
     height, width, depth = bgr_img.shape
     max_bits = height * width * depth
@@ -89,6 +92,7 @@ if __name__ == '__main__':
     else:
         if args.verbose: print(" |> '" + to_bit_str(message_bits) + "'")
     print()
+    if args.verbose: print(f"This image can hide up to {max_bits} bits (i.e. {max_bits // 8} ASCII characters)\n")
 
     r_message = message_bits[0::3]
     g_message = message_bits[1::3]
@@ -99,6 +103,7 @@ if __name__ == '__main__':
         print("B channel:", b_message)
         print()
 
+    # FIXME add a '\0' and don't change the remaining image pixels
     if height*width > r_message.size: r_message = np.pad(r_message, (0, height*width - r_message.size), constant_values=0)
     if height*width > g_message.size: g_message = np.pad(g_message, (0, height*width - g_message.size), constant_values=0)
     if height*width > b_message.size: b_message = np.pad(b_message, (0, height*width - b_message.size), constant_values=0)
@@ -127,7 +132,7 @@ if __name__ == '__main__':
         print("Image with message embedded:")
         print_binary_repr(__img)
 
-    cv2.imwrite(args.output_image, __img)
+    save(__img, full_path=args.output_image)
     print(f"Image saved to '{args.output_image}'")
 
 # >>> chr(10)
