@@ -1,8 +1,9 @@
+## Install dependencies
 > pip3 install numpy matplotlib opencv-python
 ## Example usage
-`$ python3 encode.py input_image.png message_in.txt output_image.png [bit_plane]`
+`$ python3 encode.py input_image.png message_in.txt output_image.png [bit_plane]`  
 `$ python3 decode.py output_image.png message_out.txt [bit_plane]`
-## encode.py
+## [encode.py](https://github.com/laurelkeys/image-processing/blob/master/assignment-4/encode.py)
 ```
 usage: encode.py [-h]
                  --input_image INPUT_IMAGE
@@ -24,7 +25,7 @@ optional arguments:
   --bit_plane {0,1,2,3,4,5,6,7}, -b {0,1,2,3,4,5,6,7}
                         Bit plane in which to hide the message (default: 0)
 ```
-## decode.py
+## [decode.py](https://github.com/laurelkeys/image-processing/blob/master/assignment-4/decode.py)
 ```
 usage: decode.py [-h]
                  --image IMAGE
