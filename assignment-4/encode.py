@@ -37,28 +37,6 @@ def validate_file_paths(args):
 
 ###############################################################################
 
-def to_byte_array(string):
-    uint8_array = np.zeros(len(string), dtype='uint8')
-    for i, char in enumerate(string):
-        uint8_array[i] = char
-    return uint8_array
-
-def to_bit_str(bit_array):
-    bit_str = ""
-    bits_added = 0
-    for bit in bit_array:
-        if bits_added % 8 == 0:
-            bit_str += ' '
-        bit_str += str(bit)
-        bits_added += 1
-    return bit_str[1:] # removes the first ' '
-
-def print_binary_repr(uint8_array):
-    print(np.array([np.binary_repr(elem).zfill(8) for elem in uint8_array.ravel()])
-            .reshape(uint8_array.shape))
-
-###############################################################################
-
 if __name__ == '__main__':
     args = get_parser().parse_args()
     if args.very_verbose: args.verbose = True
