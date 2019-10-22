@@ -43,8 +43,23 @@ if __name__ == '__main__':
     b_message = __img[..., 0].ravel()
     g_message = __img[..., 1].ravel()
     r_message = __img[..., 2].ravel()
+    
+    # retrieve message from bit_plane
+    message_bits = np.dstack((r_message, g_message, b_message)).ravel()
+    message = ''.join([chr(byte) for byte in np.packbits(message_bits)])
+
+    # FIXME this won't work if we add a '\0' and don't change the remaining image pixels
+    eof = len(message) - 1
+    while ord(message[eof]) == 0:
+        eof -= 1
+    message = message[:eof+1]
+    if args.very_verbose:
+        print(" |> '" + to_bit_str(message_bits) + "'")
+    if args.verbose:
+        print(" |> '" + message  + "'")
 
     if args.very_verbose:
+        print()
         print("Image:")
         print_binary_repr(bgr_img)
         print(f"Message hidden on bit plane {args.bit_plane}:")
@@ -52,8 +67,8 @@ if __name__ == '__main__':
         print("R channel:", r_message)
         print("G channel:", g_message)
         print("B channel:", b_message)
-        print()
     
-    message_bits = np.dstack((r_message, g_message, b_message)).ravel()
-    print(" |> '" + to_bit_str(message_bits) + "'")
-    print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
+    # write decoded message to file
+    with open(args.message, 'w+') as txt_file:
+        txt_file.write(message)
+    print(f"\nDecoded message saved to '{args.message}'")

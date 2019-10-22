@@ -35,6 +35,7 @@ usage: decode.py [-h]
                  --image IMAGE
                  --message MESSAGE
                  [--bit_plane {0,1,2,3,4,5,6,7}]
+                 [--verbose] [--very_verbose]
 
 required arguments:
   --image IMAGE, -i IMAGE
@@ -46,5 +47,8 @@ required arguments:
 optional arguments:
   --bit_plane {0,1,2,3,4,5,6,7}, -b {0,1,2,3,4,5,6,7}
                         Bit plane in which the message is hidden (default: 0)
+  --verbose, -v         Increase verbosity
+  --very_verbose, -vv   Increase verbosity even more (only recommended for
+                        small input images)
   -h, --help            show this help message and exit
 ```

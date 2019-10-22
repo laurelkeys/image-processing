@@ -59,18 +59,22 @@ if __name__ == '__main__':
         lines = [line.encode('ascii') for line in txt_file.readlines()]
 
     message = b''.join(lines)
-    print(" |> '" + message.decode('ascii') + "'")
+    if args.verbose:
+        print(" |> '" + message.decode('ascii') + "'")
 
     message_bits = np.unpackbits(to_byte_array(message))
     if message_bits.size > max_bits:
         message_bits = message_bits[:max_bits]
-        print("\nThe message is too big to fit in the image, only its start will be hidden:")
-        print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
-        if args.verbose: print(" |> '" + to_bit_str(message_bits) + "'")
-    else:
-        if args.verbose: print(" |> '" + to_bit_str(message_bits) + "'")
-    print()
-    if args.verbose: print(f"This image can hide up to {max_bits} bits (i.e. {max_bits // 8} ASCII characters)\n")
+        if args.verbose:
+            print("\nThe message is too big to fit in the image, only its start will be hidden:")
+            print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
+        if args.very_verbose:
+            print(" |> '" + to_bit_str(message_bits) + "'")
+    elif args.very_verbose:
+            print(" |> '" + to_bit_str(message_bits) + "'")
+    
+    if args.verbose:
+        print(f"\nThis image can hide up to {max_bits} bits (i.e. {max_bits // 8} ASCII characters)\n")
 
     r_message = message_bits[0::3]
     g_message = message_bits[1::3]
@@ -91,9 +95,11 @@ if __name__ == '__main__':
     message_plane[..., 0] = b_message.reshape((height, width))
     message_plane[..., 1] = g_message.reshape((height, width))
     message_plane[..., 2] = r_message.reshape((height, width))
-    if args.very_verbose: print("Message plane:"); print(message_plane); print()
+    if args.very_verbose:
+        print("Message plane:"); print(message_plane); print()
 
-    if args.verbose: print(f"Hiding message on bit plane {args.bit_plane}..")
+    if args.verbose:
+        print(f"Hiding message on bit plane {args.bit_plane}..")
     # 0xHH..HbH..HH == (0xHH..H0H..HH | 0x00..0b0..00) == ((0xHH..HHH..HH & 0x11..101..11) | 0x00..0b0..00)
 	#        ^- bit_plane
 	# obs.: 0x11..101..11 == ~0x00..010..00 == ~(0x00..000..01 << bit_plane)
@@ -111,6 +117,7 @@ if __name__ == '__main__':
         print_binary_repr(__img)
 
     save(__img, full_path=args.output_image)
+    if not args.verbose: print()
     print(f"Image saved to '{args.output_image}'")
 
 # >>> chr(10)
