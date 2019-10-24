@@ -27,10 +27,10 @@ def validate_file_paths(args):
         sys.exit(f"\nERROR: Invalid image file path '{args.input_image}'")
     if not os.path.isfile(args.message):
         sys.exit(f"\nERROR: Invalid message file path '{args.message}'")
-    if args.output_image == None:
+    if args.output_image is None:
         root, image_fname, ext = split_root_name_ext(args.input_image)
         _, message_fname, _ = split_root_name_ext(args.message)
-        if args.output_folder != None:
+        if args.output_folder is not None:
             root = args.output_folder
         args.output_image = os.path.join(root, f"{image_fname}-{message_fname}-b{args.bit_plane}{ext}")
     create_folder(args.output_image) # creates the output folder if it doesn't exist

@@ -58,7 +58,7 @@ def prompt_yes_no(question, default=None):
     reply = str(input(question + prompt)).lower().strip()
     if reply[:1] == 'y': return True
     if reply[:1] == 'n': return False
-    return default if default != None else prompt_yes_no(question)
+    return default if default is not None else prompt_yes_no(question)
 
 ###############################################################################
 
@@ -72,7 +72,7 @@ def ready_image_fnames():
     v_print(f"Output folder: {os.path.join(args.output_folder, '')}")
     create_folder(args.output_folder)
 
-    if args.image == None:
+    if args.image is None:
         img_fnames = [ifn for ifn in image_fnames(folder=args.input_folder)]
     else:
         if not args.image.endswith(DEFAULT_EXT):
@@ -145,13 +145,13 @@ if __name__ == '__main__':
         except:
             print(f"ERROR: Couldn't load custom_constants from file: '{args.custom_constants}'")
             args.custom_constants = {}
-    if args.image == None:
+    if args.image is None:
         run_all = prompt_yes_no(default=True, 
                                 question=f"Do you want to threhsold all images inside '{os.path.join(args.input_folder, '')}'?")
         if not run_all:
             sys.exit(f"\nExitting... please use the -img argument to threshold only a specific image (or -h for help)")
 
-    methods = Method.list_all if args.method_index == None else [Method.list_all[args.method_index]]
+    methods = Method.list_all if args.method_index is None else [Method.list_all[args.method_index]]
     v_print(f"Methods: {methods}\n")
 
     # get the filenames of the test images, creating the output folder if it doesn't exist

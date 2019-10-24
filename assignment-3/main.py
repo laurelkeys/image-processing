@@ -47,7 +47,7 @@ def prompt_yes_no(question, default=None):
     reply = str(input(question + prompt)).lower().strip()
     if reply[:1] == 'y': return True
     if reply[:1] == 'n': return False
-    return default if default != None else prompt_yes_no(question)
+    return default if default is not None else prompt_yes_no(question)
 
 ###############################################################################
 
@@ -61,7 +61,7 @@ def ready_image_fnames():
     v_print(f"Output folder: {os.path.join(args.output_folder, '')}")
     create_folder(args.output_folder)
 
-    if args.image == None:
+    if args.image is None:
         img_fnames = [ifn for ifn in image_fnames(folder=args.input_folder)]
     else:
         if not args.image.endswith(DEFAULT_EXT):
@@ -136,7 +136,7 @@ def do_measurements(images):
 
 if __name__ == '__main__':
     parse_args()
-    if args.image == None:
+    if args.image is None:
         run_all = prompt_yes_no(default=True, 
                                 question=f"Do you want to use all images inside '{os.path.join(args.input_folder, '')}'?")
         if not run_all:
