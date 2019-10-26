@@ -50,9 +50,8 @@ if __name__ == '__main__':
 
     # calculate the max number of bits we can hide on the image
     height, width, depth = bgr_img.shape
-    max_bits = height * width * depth
-    while max_bits % 8 != 0:
-        max_bits -= 1 # we can only store whole byte words
+    max_bytes = height * width * depth // 8
+    max_bits = max_bytes * 8 # we can only store whole byte words
 
     # read message lines into an array
     with open(args.message, 'r') as txt_file:
@@ -62,60 +61,60 @@ if __name__ == '__main__':
     if args.verbose:
         print(" |> '" + message.decode('ascii') + "'")
 
-    message_bits = np.unpackbits(to_byte_array(message))
+    if len(message) < max_bytes:
+        message += b'\0' # mark the end of the message
+    message_bytes = to_byte_array(message)
+    message_bits = np.unpackbits(message_bytes)
+    
     if message_bits.size > max_bits:
         message_bits = message_bits[:max_bits]
         if args.verbose:
             print("\nThe message is too big to fit in the image, only its start will be hidden:")
             print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
-        if args.very_verbose:
-            print(" |> '" + to_bit_str(message_bits) + "'")
-    elif args.very_verbose:
-            print(" |> '" + to_bit_str(message_bits) + "'")
     
+    if args.very_verbose:
+        print(" |> '" + to_bit_str(message_bits) + "'")
     if args.verbose:
-        print(f"\nThis image can hide up to {max_bits} bits (i.e. {max_bits // 8} ASCII characters)\n")
+        print(f"\nThis image can hide up to {max_bits} bits (i.e. {max_bytes} ASCII characters)\n")
 
     r_message = message_bits[0::3]
     g_message = message_bits[1::3]
     b_message = message_bits[2::3]
+    r_length, g_length, b_length = r_message.size, g_message.size, b_message.size
     if args.very_verbose:
-        print("R channel:", r_message)
-        print("G channel:", g_message)
-        print("B channel:", b_message)
-        print()
-
-    # FIXME add a '\0' and don't change the remaining image pixels
-    if height*width > r_message.size: r_message = np.pad(r_message, (0, height*width - r_message.size), constant_values=0)
-    if height*width > g_message.size: g_message = np.pad(g_message, (0, height*width - g_message.size), constant_values=0)
-    if height*width > b_message.size: b_message = np.pad(b_message, (0, height*width - b_message.size), constant_values=0)
+        print(f"R channel ({r_length} bits):\n", r_message)
+        print(f"G channel ({g_length} bits):\n", g_message)
+        print(f"B channel ({b_length} bits):\n", b_message, '\n')
 
     # NOTE OpenCV uses BGR order
-    message_plane = np.zeros(bgr_img.shape, dtype='uint8')
-    message_plane[..., 0] = b_message.reshape((height, width))
-    message_plane[..., 1] = g_message.reshape((height, width))
-    message_plane[..., 2] = r_message.reshape((height, width))
-    if args.very_verbose:
-        print("Message plane:"); print(message_plane); print()
+    r = bgr_img[..., 2].ravel()
+    g = bgr_img[..., 1].ravel()
+    b = bgr_img[..., 0].ravel()
 
     if args.verbose:
         print(f"Hiding message on bit plane {args.bit_plane}..")
-    # 0xHH..HbH..HH == (0xHH..H0H..HH | 0x00..0b0..00) == ((0xHH..HHH..HH & 0x11..101..11) | 0x00..0b0..00)
-	#        ^- bit_plane
-	# obs.: 0x11..101..11 == ~0x00..010..00 == ~(0x00..000..01 << bit_plane)
-	#       0x00..0b0..00 == (0x00..000..0b << bit_plane), where b is 0 or 1
+    # ?..?b?..? == (?..?0?..? | 0..0b0..0) == ((?..???..? & 1..101..1) | 0..0b0..0)
+	#     ^- bit_plane
+	# obs.: 1..101..1 == ~0..010..0 == ~(0..000..1 << bit_plane)
+	#       0..0b0..0 == (0..000..b << bit_plane), where b is either 0 or 1
+    #       |<--8-->|, b can be in any position (i.e.: 0 <= bit_plane < 8)
     mask = 1 << args.bit_plane
-    __img = np.bitwise_and(bgr_img, ~mask)
-    __img = np.bitwise_or(__img, message_plane << args.bit_plane)
+    r[:r_length] = (r[:r_length] & ~mask) | (r_message << args.bit_plane)
+    g[:g_length] = (g[:g_length] & ~mask) | (g_message << args.bit_plane)
+    b[:b_length] = (b[:b_length] & ~mask) | (b_message << args.bit_plane)
     
-    if args.very_verbose:
-        print("Original image:")
-        print_binary_repr(bgr_img)
-        print(f"Message in bit plane {args.bit_plane}:")
-        print_binary_repr(message_plane << args.bit_plane)
-        print("Image with message embedded:")
-        print_binary_repr(__img)
+    __img = np.dstack((b.reshape((height, width)), 
+                       g.reshape((height, width)), 
+                       r.reshape((height, width))))
 
+    if args.very_verbose:
+        # use [..., ::-1] to display RGB instead of BGR
+        print("\nOriginal image:")
+        print_binary_repr(bgr_img[..., ::-1])
+        print("\nImage with message embedded:")
+        print_binary_repr(__img[..., ::-1])
+        print()
+    
     save(__img, full_path=args.output_image)
     if not args.verbose: print()
     print(f"Image saved to '{args.output_image}'")

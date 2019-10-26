@@ -33,8 +33,8 @@ if __name__ == '__main__':
 
     bgr_img = load(full_path=args.image)
 
-    # 0x00..000..0b == (0x00..0b0..00 >> bit_plane) == ((0xHH..HbH..HH & 0x00..010..00) >> bit_plane)
-	# obs.: 0x00..010..00 == (0x00..000..01 << bit_plane)
+    # 0..000..b == (0..0b0..0 >> bit_plane) == ((?..?b?..? & 0..010..0) >> bit_plane)
+	# obs.: 0..010..0 == (0..000..1 << bit_plane)
     mask = 1 << args.bit_plane
     __img = np.bitwise_and(bgr_img, mask)
     __img >>= args.bit_plane
@@ -46,13 +46,16 @@ if __name__ == '__main__':
     
     # retrieve message from bit_plane
     message_bits = np.dstack((r_message, g_message, b_message)).ravel()
-    message = ''.join([chr(byte) for byte in np.packbits(message_bits)])
+    max_bits = message_bits.size
+    while max_bits % 8 != 0:
+        max_bits -= 1 # we can only store whole byte words
+    message = ''.join([chr(byte) for byte in np.packbits(message_bits[:max_bits])])
 
-    # FIXME this won't work if we add a '\0' and don't change the remaining image pixels
-    eof = len(message) - 1
-    while ord(message[eof]) == 0:
-        eof -= 1
-    message = message[:eof+1]
+    # FIXME
+    # look for the '\0' marking the end of the message
+    end = message.find('\0')
+    if end != -1:
+        message = message[:end]
     if args.very_verbose:
         print(" |> '" + to_bit_str(message_bits) + "'")
     if args.verbose:
