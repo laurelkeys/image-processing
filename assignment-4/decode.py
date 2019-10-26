@@ -72,6 +72,7 @@ if __name__ == '__main__':
         print("B channel:", b_message)
     
     # write decoded message to file
+    create_folder(args.message)
     with open(args.message, 'w+') as txt_file:
         txt_file.write(message)
     print(f"\nDecoded message saved to '{args.message}'")

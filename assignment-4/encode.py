@@ -68,8 +68,8 @@ if __name__ == '__main__':
     
     if message_bits.size > max_bits:
         message_bits = message_bits[:max_bits]
-        if args.verbose:
-            print("\nThe message is too big to fit in the image, only its start will be hidden:")
+        print("\nThe message is too big to fit in the image, only its start will be hidden")
+        if args.verbose:            
             print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
     
     if args.very_verbose:
