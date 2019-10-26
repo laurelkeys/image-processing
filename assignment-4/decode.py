@@ -20,6 +20,7 @@ def get_parser():
 def validate_file_paths(args):
     if not os.path.isfile(args.image):
         sys.exit(f"\nERROR: Invalid image file path '{args.image}'")
+    create_folder(args.message) # creates the output folder if it doesn't exist
 
 ###############################################################################
 
@@ -51,7 +52,6 @@ if __name__ == '__main__':
         max_bits -= 1 # we can only store whole byte words
     message = ''.join([chr(byte) for byte in np.packbits(message_bits[:max_bits])])
 
-    # FIXME
     # look for the '\0' marking the end of the message
     end = message.find('\0')
     if end != -1:
@@ -72,7 +72,6 @@ if __name__ == '__main__':
         print("B channel:", b_message)
     
     # write decoded message to file
-    create_folder(args.message)
     with open(args.message, 'w+') as txt_file:
         txt_file.write(message)
     print(f"\nDecoded message saved to '{args.message}'")

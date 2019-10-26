@@ -54,7 +54,7 @@ def create_folder(path):
     fname = os.path.basename(path)
     if fname.__contains__('.'):
         path = os.path.dirname(path) # if path contains a file name we remove it
-    if not os.path.exists(path):
+    if len(path) > 0 and not os.path.exists(path):
         os.makedirs(path)
 
 ###############################################################################
