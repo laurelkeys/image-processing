@@ -5,12 +5,12 @@ from utils import *
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Steganography algorithm to recover a text message hidden in an image.")
-    parser.add_argument("--image", "-i", type=str, required=True, 
+    parser.add_argument("image", type=str, 
                         help="File name (with path) of the image in which the message is embedded")
-    parser.add_argument("--message", "-m", type=str, required=True, 
-                        help="Text file name (with path) for which to save the decoded message")
-    parser.add_argument("--bit_plane", "-b", type=int, choices=range(0, 8), default=0, 
-                        help="Bit plane in which the message is hidden (default: %(default)d)")
+    parser.add_argument("bit_plane", type=int, choices=range(0, 8), 
+                        help="Bit plane in which the message is hidden")
+    parser.add_argument("message", type=str, 
+                        help="Text file name (with path) to which the decoded message will be saved")
     parser.add_argument("--verbose", "-v", action="store_true", 
                         help="Increase verbosity")
     parser.add_argument("--very_verbose", "-vv", action="store_true", 
@@ -24,8 +24,7 @@ def validate_file_paths(args):
 
 ###############################################################################
 
-if __name__ == '__main__':
-    args = get_parser().parse_args()
+def main(args):
     if args.very_verbose: args.verbose = True
     
     validate_file_paths(args)
@@ -75,3 +74,14 @@ if __name__ == '__main__':
     with open(args.message, 'w+') as txt_file:
         txt_file.write(message)
     print(f"\nDecoded message saved to '{args.message}'")
+
+
+if __name__ == '__main__':
+    args = get_parser().parse_args()
+    main(args)
+
+# >>> chr(10)
+# '\n'
+# >>> chr(32)
+# ' '
+# https://www.rapidtables.com/convert/number/binary-to-ascii.html

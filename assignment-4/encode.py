@@ -1,21 +1,18 @@
 import sys
 import os.path
 import argparse
-import numpy as np
 from utils import *
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Steganography algorithm to hide a text message in an image.")
-    parser.add_argument("--input_image", "-i", type=str, required=True, 
+    parser.add_argument("input_image", type=str, 
                         help="Input image file name (with path), in which the message will be embedded")
-    parser.add_argument("--message", "-m", type=str, required=True, 
+    parser.add_argument("message", type=str, 
                         help="Text file name (with path), containing the message to hide")
-    parser.add_argument("--output_image", "-o", type=str, 
+    parser.add_argument("bit_plane", type=int, choices=range(0, 8), 
+                        help="Bit plane in which to hide the message")
+    parser.add_argument("output_image", type=str, 
                         help="Output image file name (with path)")
-    parser.add_argument("--output_folder", "-of", type=str, default=os.path.join(OUTPUT_FOLDER, ''), 
-                        help="Ignored if [output_image] is passed (default: %(default)s)")
-    parser.add_argument("--bit_plane", "-b", type=int, choices=range(0, 8), default=0, 
-                        help="Bit plane in which to hide the message (default: %(default)d)")
     parser.add_argument("--verbose", "-v", action="store_true", 
                         help="Increase verbosity")
     parser.add_argument("--very_verbose", "-vv", action="store_true", 
@@ -27,18 +24,11 @@ def validate_file_paths(args):
         sys.exit(f"\nERROR: Invalid image file path '{args.input_image}'")
     if not os.path.isfile(args.message):
         sys.exit(f"\nERROR: Invalid message file path '{args.message}'")
-    if args.output_image is None:
-        root, image_fname, ext = split_root_name_ext(args.input_image)
-        _, message_fname, _ = split_root_name_ext(args.message)
-        if args.output_folder is not None:
-            root = args.output_folder
-        args.output_image = os.path.join(root, f"{image_fname}-{message_fname}-b{args.bit_plane}{ext}")
     create_folder(args.output_image) # creates the output folder if it doesn't exist
 
 ###############################################################################
 
-if __name__ == '__main__':
-    args = get_parser().parse_args()
+def main(args):
     if args.very_verbose: args.verbose = True
     
     validate_file_paths(args)
@@ -63,8 +53,7 @@ if __name__ == '__main__':
 
     if len(message) < max_bytes:
         message += b'\0' # mark the end of the message
-    message_bytes = to_byte_array(message)
-    message_bits = np.unpackbits(message_bytes)
+    message_bits = np.unpackbits(np.frombuffer(message, dtype=np.uint8))
     
     if message_bits.size > max_bits:
         message_bits = message_bits[:max_bits]
@@ -118,6 +107,11 @@ if __name__ == '__main__':
     save(__img, full_path=args.output_image)
     if not args.verbose: print()
     print(f"Image saved to '{args.output_image}'")
+
+
+if __name__ == '__main__':
+    args = get_parser().parse_args()
+    main(args)
 
 # >>> chr(10)
 # '\n'
