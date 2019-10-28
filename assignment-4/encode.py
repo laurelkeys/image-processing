@@ -1,4 +1,5 @@
 import sys
+import string
 import os.path
 import argparse
 from utils import *
@@ -16,6 +17,8 @@ def get_parser():
     parser.add_argument("--verbose", "-v", action="store_true", 
                         help="Increase verbosity")
     parser.add_argument("--very_verbose", "-vv", action="store_true", 
+                        help="Increase verbosity even more (only recommended for small messages)")
+    parser.add_argument("--very_very_verbose", "-vvv", action="store_true", 
                         help="Increase verbosity even more (only recommended for small input images)")
     return parser
 
@@ -29,6 +32,7 @@ def validate_file_paths(args):
 ###############################################################################
 
 def main(args):
+    if args.very_very_verbose: args.very_verbose = True
     if args.very_verbose: args.verbose = True
     
     validate_file_paths(args)
@@ -44,11 +48,18 @@ def main(args):
     max_bits = max_bytes * 8 # we can only store whole byte words
 
     # read message lines into an array
-    with open(args.message, 'r') as txt_file:
-        lines = [line.encode('ascii') for line in txt_file.readlines()]
+    with open(args.message, 'r', encoding="utf-8") as txt_file:
+        txt_lines = txt_file.readlines()
+        try:
+            lines = [line.encode('ascii') for line in txt_lines]
+        except UnicodeEncodeError:
+            print("WARNING: The message contains non-ASCII characters, which will be ignored")
+            lines = [ascii_line.encode('ascii') 
+                     for line in txt_lines
+                     for ascii_line in ''.join([c for c in line if c in string.printable])]
 
     message = b''.join(lines)
-    if args.verbose:
+    if args.very_verbose:
         print(" |> '" + message.decode('ascii') + "'")
 
     if len(message) < max_bytes:
@@ -58,10 +69,10 @@ def main(args):
     if message_bits.size > max_bits:
         message_bits = message_bits[:max_bits]
         print("\nThe message is too big to fit in the image, only its start will be hidden")
-        if args.verbose:            
+        if args.very_verbose:            
             print(" |> '" + ''.join([chr(byte) for byte in np.packbits(message_bits)]) + "'")
     
-    if args.very_verbose:
+    if args.very_very_verbose:
         print(" |> '" + to_bit_str(message_bits) + "'")
     if args.verbose:
         print(f"\nThis image can hide up to {max_bits} bits (i.e. {max_bytes} ASCII characters)\n")
@@ -70,7 +81,7 @@ def main(args):
     g_message = message_bits[1::3]
     b_message = message_bits[2::3]
     r_length, g_length, b_length = r_message.size, g_message.size, b_message.size
-    if args.very_verbose:
+    if args.very_very_verbose:
         print(f"R channel ({r_length} bits):\n", r_message)
         print(f"G channel ({g_length} bits):\n", g_message)
         print(f"B channel ({b_length} bits):\n", b_message, '\n')
@@ -96,7 +107,7 @@ def main(args):
                        g.reshape((height, width)), 
                        r.reshape((height, width))))
 
-    if args.very_verbose:
+    if args.very_very_verbose:
         # use [..., ::-1] to display RGB instead of BGR
         print("\nOriginal image:")
         print_binary_repr(bgr_img[..., ::-1])

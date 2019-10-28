@@ -72,7 +72,11 @@ def main(args):
     
     # write decoded message to file
     with open(args.message, 'w+') as txt_file:
-        txt_file.write(message)
+        try:
+            txt_file.write(message)
+        except UnicodeEncodeError:
+            print(f"ERROR: Couldn't decode message, please make sure it is hidden on bit plane {args.bit_plane}")
+            exit()
     print(f"\nDecoded message saved to '{args.message}'")
 
 
