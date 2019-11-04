@@ -1,100 +1,74 @@
-import io
 import sys
+import string
 import os.path
 import argparse
 from utils import *
+from numpy.linalg import svd
 
 def get_parser():
-    parser = argparse.ArgumentParser(description="Image compression through PCA.")
-    parser.add_argument("--plain", action="store_true", 
-                        help="Decrease verbosity")
-    parser.add_argument("--number_of_components", "-k", type=int, default=1, 
-                        help="Number of principal components to be used (defaults to %(default)d)")
-    parser.add_argument("--image", "-img", type=str, 
-                        help=f"Image file name ('{DEFAULT_EXT}' extension is optional), which must be inside the input folder")
-    parser.add_argument("--input_folder", "-i", type=str, default=INPUT_FOLDER, 
-                        help="Input image(s) folder path" + f" (defaults to {os.path.join(INPUT_FOLDER, '')})")
-    parser.add_argument("--output_folder", "-o", type=str, default=OUTPUT_FOLDER, 
-                        help="Output image(s) folder path" + f" (defaults to {os.path.join(OUTPUT_FOLDER, '')})")
+    parser = argparse.ArgumentParser(description="Image compression through Principal Component Analysis.")
+    parser.add_argument("input_image", type=str, 
+                        help="Input image file name (with path), in which the message will be embedded")
+    parser.add_argument("output_image", type=str, 
+                        help="Output image file name (with path)")
+    parser.add_argument("number_of_components", type=int, 
+                        help="Number of principal components to be used")
+    parser.add_argument("--verbose", "-v", action="store_true", 
+                        help="Increase verbosity")
     return parser
 
-args = None
-v_print = None
-def parse_args():
-    parser = get_parser()
-    global args
-    args = parser.parse_args()
+def validate_file_paths(args):
+    if not os.path.isfile(args.input_image):
+        sys.exit(f"\nERROR: Invalid image file path '{args.input_image}'")
+    create_folder(args.output_image) # creates the output folder if it doesn't exist
 
-    if args.plain:
-        __v_print = lambda *a, **kwa: None
-    else:
-        def __v_print(*a, **kwa):
-            print(*a, **kwa)
+###############################################################################
+
+def main(args):    
+    validate_file_paths(args)
+    print(f"Input: {args.input_image}")
+    print(f"Output: {args.output_image}")
+
+    bgr_img = load(full_path=args.input_image).astype('float') # (M, N, 3)
+
+    height, width, _ = bgr_img.shape
+    K = height if height <= width else width # max k is min(M, N)
+    if args.verbose:
+        print(f"\nNumber of principal components: {K}")
     
-    global v_print
-    v_print = __v_print
+    if args.number_of_components > K:
+        print(f"\nWARNING: The number k of principal components to be used should be less than or equal to {K}")
+        print(f"         (i.e. k <= min(M, N) == min({height}, {width}) for '{args.input_image}')")
+        args.number_of_components = K
+        print(f"WARNING: Using k = {K}")
 
-def prompt_yes_no(question, default=None):
-    if default is None: prompt = " (y/n) "
-    elif default:       prompt = " (Y/n) "
-    else:               prompt = " (y/N) "
-    reply = str(input(question + prompt)).lower().strip()
-    if reply[:1] == 'y': return True
-    if reply[:1] == 'n': return False
-    return default if default is not None else prompt_yes_no(question)
+    # NOTE OpenCV uses BGR order
+    # obs.: vh = np.transpose(np.conj(v))
+    b_u, b_s, b_vh = svd(bgr_img[:, :, 0], full_matrices=False)
+    g_u, g_s, g_vh = svd(bgr_img[:, :, 1], full_matrices=False)
+    r_u, r_s, r_vh = svd(bgr_img[:, :, 2], full_matrices=False)
 
-###############################################################################
+    # for each channel i in range(0, 3):
+    # bgr_img[:, :, i] == u[:, :, i] @ s[:, :, i] @ vh[:, :, i]
+    u = np.dstack((b_u, g_u, r_u))                            # (M, K, 3)
+    s = np.dstack((np.diag(b_s), np.diag(g_s), np.diag(r_s))) # (K, K, 3)
+    vh = np.dstack((b_vh, g_vh, r_vh))                        # (K, N, 3)
 
-def check_paths_exist_or_die(image_fnames, folder):
-    for image_fname in image_fnames:
-        if not os.path.isfile(os.path.join(folder, image_fname)):
-            sys.exit(f"\nERROR: invalid image path or extension '{os.path.join(folder, image_fname)}'")
+    # k <= K == min(M, N)
+    k = args.number_of_components
+    __u = u[:, :k, :]   # (M, k, 3)
+    __s = s[:k, :k, :]  # (k, k, 3)
+    __vh = vh[:k, :, :] # (k, N, 3)
 
-def ready_image_fnames():
-    v_print(f"Input folder: {os.path.join(args.input_folder, '')}")
-    v_print(f"Output folder: {os.path.join(args.output_folder, '')}")
-    create_folder(args.output_folder)
-
-    if args.image is None:
-        img_fnames = [ifn for ifn in image_fnames(folder=args.input_folder)]
-    else:
-        if not args.image.endswith(DEFAULT_EXT):
-            args.image += DEFAULT_EXT
-        img_fnames = [args.image]
+    __b = __u[:, :, 0] @ __s[:, :, 0] @ __vh[:, :, 0]
+    __g = __u[:, :, 1] @ __s[:, :, 1] @ __vh[:, :, 1]
+    __r = __u[:, :, 2] @ __s[:, :, 2] @ __vh[:, :, 2]
+    __img = np.dstack((__b, __g, __r))
     
-    check_paths_exist_or_die(img_fnames, folder=args.input_folder)
-    return img_fnames
+    save(__img, full_path=args.output_image)
+    print(f"\nImage saved to '{args.output_image}'")
 
-###############################################################################
-
-def apply_and_save(img, transformation, save_fname):
-    ''' Applies transformation to a copy of img and saves it '''
-    transformed_img = transformation(img)
-    if args.display_images:
-        show(transformed_img, save_fname)
-    save(transformed_img, save_fname, folder=args.output_folder)
-    v_print(f"Saved '{save_fname}'")
-
-###############################################################################
 
 if __name__ == '__main__':
-    parse_args()
-    if args.image is None:
-        run_all = prompt_yes_no(default=True, 
-                                question=f"Do you want to use all images inside '{os.path.join(args.input_folder, '')}'?")
-        if not run_all:
-            sys.exit(f"\nExitting... please use the -img argument to use only a specific image (or -h for help)")
-
-    # get the filenames of the test images, creating the output folder if it doesn't exist
-    img_fnames = ready_image_fnames() # (kills the program if the images don't exist)
-
-    # load input image(s)
-    images = {}
-    v_print("Loading images...")
-    for img_fname in img_fnames:
-        img_title, _ = split_name_ext(img_fname)
-        images[img_title] = load(img_fname, folder=args.input_folder)
-        v_print(f"'{img_fname}' loaded")
-    v_print("")
-    
-    
+    args = get_parser().parse_args()
+    main(args)
