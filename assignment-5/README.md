@@ -1,23 +1,18 @@
 > pip3 install numpy matplotlib opencv-python
 ```
-usage: main.py [-h] [--plain]
-               [--number_of_components NUMBER_OF_COMPONENTS]
-               [--image IMAGE]
-               [--input_folder INPUT_FOLDER]
-               [--output_folder OUTPUT_FOLDER]
+usage: main.py [-h] [--verbose]
+               input_image
+               number_of_components
+               [output_image]
 
-Image compression through PCA.
+Image compression through Principal Component Analysis.
+
+positional arguments:
+  input_image           Input image file name (with path)
+  number_of_components  Number of principal components to be used
+  output_image          Output compressed image file name (with path)
 
 optional arguments:
   -h, --help            show this help message and exit
-  --plain               Decrease verbosity
-  --number_of_components NUMBER_OF_COMPONENTS, -k NUMBER_OF_COMPONENTS
-                        Number of principal components to be used (defaults to 1)
-  --image IMAGE, -img IMAGE
-                        Image file name ('.png' extension is optional), which
-                        must be inside the input folder
-  --input_folder INPUT_FOLDER, -i INPUT_FOLDER
-                        Input image(s) folder path (defaults to i\)
-  --output_folder OUTPUT_FOLDER, -o OUTPUT_FOLDER
-                        Output image(s) folder path (defaults to o\)
+  --verbose, -v         Increase verbosity
 ```

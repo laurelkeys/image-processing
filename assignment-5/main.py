@@ -1,5 +1,4 @@
 import sys
-import string
 import os.path
 import argparse
 from utils import *
@@ -8,11 +7,11 @@ from numpy.linalg import svd
 def get_parser():
     parser = argparse.ArgumentParser(description="Image compression through Principal Component Analysis.")
     parser.add_argument("input_image", type=str, 
-                        help="Input image file name (with path), in which the message will be embedded")
-    parser.add_argument("output_image", type=str, 
-                        help="Output image file name (with path)")
+                        help="Input image file name (with path)")
     parser.add_argument("number_of_components", type=int, 
                         help="Number of principal components to be used")
+    parser.add_argument("output_image", type=str, nargs='?', default=None, 
+                        help="Output compressed image file name (with path)")
     parser.add_argument("--verbose", "-v", action="store_true", 
                         help="Increase verbosity")
     return parser
@@ -20,7 +19,11 @@ def get_parser():
 def validate_file_paths(args):
     if not os.path.isfile(args.input_image):
         sys.exit(f"\nERROR: Invalid image file path '{args.input_image}'")
-    create_folder(args.output_image) # creates the output folder if it doesn't exist
+    if args.output_image is None:
+        _, name, ext = split_root_name_ext(args.input_image)
+        args.output_image = f"{name}-{args.number_of_components}{ext}" # default output file name
+    else:
+        create_folder(args.output_image) # creates the output folder if it doesn't exist
 
 ###############################################################################
 
