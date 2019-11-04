@@ -2,6 +2,7 @@ import sys
 import os.path
 import argparse
 from utils import *
+from metrics import *
 from numpy.linalg import svd
 
 def get_parser():
@@ -69,7 +70,11 @@ def main(args):
     __img = np.dstack((__b, __g, __r))
     
     save(__img, full_path=args.output_image)
-    print(f"\nImage saved to '{args.output_image}'")
+    print(f"\nCompressed image saved to '{args.output_image}'")
+
+    print(f"\nRMSE: {rmse(original=bgr_img, compressed=__img):.4f}")
+    rho, fsize, __fsize = compression_ratio(args.input_image, args.output_image)
+    print(f"Compression ratio: {100 * rho:.2f}% = {fsize} / {__fsize}")
 
 
 if __name__ == '__main__':
