@@ -34,6 +34,8 @@ def main(args):
     print(f"Output: {args.output_image}")
 
     bgr_img = load(full_path=args.input_image).astype('float') # (M, N, 3)
+    # mean, std = bgr_img.mean(), bgr_img.std()
+    # bgr_img = (bgr_img - mean) / std
 
     height, width, _ = bgr_img.shape
     K = height if height <= width else width # max k is min(M, N)
@@ -68,6 +70,7 @@ def main(args):
     __g = __u[:, :, 1] @ __s[:, :, 1] @ __vh[:, :, 1]
     __r = __u[:, :, 2] @ __s[:, :, 2] @ __vh[:, :, 2]
     __img = np.dstack((__b, __g, __r))
+    # __img = __img * std + mean
     
     save(__img, full_path=args.output_image)
     print(f"\nCompressed image saved to '{args.output_image}'")
@@ -75,6 +78,9 @@ def main(args):
     print(f"\nRMSE: {rmse(original=bgr_img, compressed=__img):.4f}")
     rho, fsize, __fsize = compression_ratio(args.input_image, args.output_image)
     print(f"Compression ratio: {100 * rho:.2f}% = {fsize} / {__fsize}")
+    if args.verbose:
+        print(f"'{args.input_image}' file size: {fsize} bytes")
+        print(f"'{args.output_image}' file size: {__fsize} bytes")
 
 
 if __name__ == '__main__':
