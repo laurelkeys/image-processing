@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     plt.plot("Number of components", "Compression ratio", data=df,
              marker="o", linestyle="dashed", color="orange")
+    plt.title(os.path.basename(path_original))
     plt.xlabel("Number of components")
     plt.ylabel("Compression ratio")
     plt.savefig(f"metrics\\plot-{prefix[:-1]}-rho.png")
@@ -38,6 +39,7 @@ if __name__ == "__main__":
 
     plt.plot("Number of components", "RMSE", data=df,
              marker="o", linestyle="dashed", color="blue")
+    plt.title(os.path.basename(path_original))
     plt.xlabel("Number of components")
     plt.ylabel("RMSE")
     plt.savefig(f"metrics\\plot-{prefix[:-1]}-rmse.png")
@@ -50,6 +52,7 @@ if __name__ == "__main__":
     plt.plot("Number of components", "RMSE", data=normalized_df,
              marker="o", linestyle="dashed", color="blue", label="RMSE")
     plt.legend(loc="center right")
+    plt.title(os.path.basename(path_original))
     plt.xlabel("Number of components")
     plt.ylabel("Normalized values to 0-1 range")
     plt.savefig(f"metrics\\plot-{prefix[:-1]}.png")
