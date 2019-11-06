@@ -16,3 +16,4 @@ optional arguments:
   -h, --help            show this help message and exit
   --verbose, -v         Increase verbosity
 ```
+`for %x in (1, 5, 10, 50, 100, 150, 200, 250, 300, 400, 500, 512) do python main.py i\lenna.png %x`
