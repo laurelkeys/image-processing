@@ -3,7 +3,7 @@ import numpy as np
 
 def rmse(original, compressed):
     ''' Returns the Root Mean Squared Error between `original` and `compressed` '''
-    return np.sqrt(np.mean(np.square(original - compressed)))
+    return np.sqrt(np.mean(np.square(original.astype('float') - compressed.astype('float'))))
 
 def compression_ratio(path_original, path_compressed):
     ''' Returns a tuple (`compression_ratio`, `fsize_original`,  `fsize_compressed`), where

@@ -78,7 +78,8 @@ def main(args):
     save(__img, full_path=args.output_image)
     print(f"\nCompressed image saved to '{args.output_image}'")
 
-    print(f"\nRMSE: {rmse(original=bgr_img, compressed=__img):.4f}")
+    # we load the pictures again since (__img == load(args.output_image)).all() is False
+    print(f"\nRMSE: {rmse(load(args.input_image), load(args.output_image)):.4f}")
     rho, fsize, __fsize = compression_ratio(args.input_image, args.output_image)
     print(f"Compression ratio: {100 * rho:.2f}% = {__fsize} / {fsize}")
     if args.verbose:
