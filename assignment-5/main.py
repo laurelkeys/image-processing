@@ -75,7 +75,8 @@ def main(args):
     __img += mean
     bgr_img += mean
     
-    save(__img, full_path=args.output_image)
+    # higher compression levels (0-9) achieve smaller file size with longer compression time
+    cv2.imwrite(args.output_image, __img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     print(f"\nCompressed image saved to '{args.output_image}'")
 
     # we load the pictures again since (__img == load(args.output_image)).all() is False

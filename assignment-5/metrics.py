@@ -17,7 +17,7 @@ def compression_ratio(path_original, path_compressed):
 if __name__ == "__main__":
     import sys
     try: path_original, path_compressed = sys.argv[1], sys.argv[2]
-    except: print("usage: metrics.py path_original path_compressed")
+    except: print("usage: metrics.py path_original path_compressed"); exit()
     
     compr_ratio, fsize_orig, fsize_compr = compression_ratio(path_original, path_compressed)
     print(f"{path_original} file size: {fsize_orig} bytes")
